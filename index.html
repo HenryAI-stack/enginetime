@@ -1028,6 +1028,12 @@ function checkMetaComplete() {
     secAct.style.pointerEvents = '';
     // Open the tab if not already open
     if (bAct.classList.contains('col')) {
+      // Close all other tabs except 'clk' and 'act'
+      ['meta','log','exp','sav'].forEach(id => {
+        const b = document.getElementById('b-'+id);
+        const c = document.getElementById('c-'+id);
+        if (b && !b.classList.contains('col')) { b.classList.add('col'); c.classList.remove('open'); }
+      });
       bAct.classList.remove('col');
       cAct.classList.add('open');
       // Wait for animation then scroll into view and focus first button
