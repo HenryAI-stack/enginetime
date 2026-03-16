@@ -459,32 +459,38 @@ function tog(id) {
 let tokenClient = null;
 
 function initGSI() {
+  // Step 2: OAuth2 token client for Drive access
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
     scope: 'https://www.googleapis.com/auth/drive.appdata',
-    callback: async (tr) => {
+    callback: (tr) => {
       if (!tr.access_token) return;
       token = tr.access_token;
-      // Fetch user info from the token
-      try {
-        const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        user = await r.json();
-      } catch(e) { user = {}; }
       onIn();
     }
   });
 
-  // Use Google's own rendered button (small, profile-aware)
+  // Step 1: Identity button — gets ID token (name, email, picture)
+  google.accounts.id.initialize({
+    client_id: CLIENT_ID,
+    callback: handleCred,
+    auto_select: false,
+    use_fedcm_for_prompt: false
+  });
+
   google.accounts.id.renderButton(
     document.getElementById('g-btn'),
     { theme: 'filled_black', size: 'medium', text: 'signin_with', shape: 'pill', locale: 'de', width: 220 }
   );
 }
 
-function startLogin() {
-  tokenClient.requestAccessToken({ prompt: '' });
+function handleCred(resp) {
+  // Parse user info from the ID token
+  try {
+    user = JSON.parse(atob(resp.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+  } catch(e) { user = {}; }
+  // Now request Drive token — pass hint so no second account picker appears
+  tokenClient.requestAccessToken({ prompt: '', login_hint: user.email || '' });
 }
 
 function onIn() {
