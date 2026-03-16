@@ -485,8 +485,8 @@ function initGSI() {
 
 function handleCred(resp) {
   user = parseJWT(resp.credential);
-  // Reuse the already-initialized token client — no new popup needed
-  tokenClient.requestAccessToken({ prompt: '' });
+  // Pass login_hint so the token client can skip the account picker
+  tokenClient.requestAccessToken({ prompt: '', login_hint: user.email || user.sub || '' });
 }
 
 function parseJWT(t) {
@@ -627,25 +627,58 @@ function selectVFRRoute(idx) {
   document.querySelectorAll('.route-pill').forEach(p => p.classList.remove('selected'));
   document.getElementById('rpill-'+idx)?.classList.add('selected');
 
-  // Support both German (VFR-Tool) and English field names
-  const reg  = d.kennzeichen || d.registration || d.callsign || d.aircraft || '';
-  const dep  = d.abflug  || d.departure || d.from || '';
-  const dest = d.ziel    || d.destination || d.to  || '';
-  const name = d.name    || d.routeName  || d.routing || '';
+  // Deep-search helper: check top-level + common nested objects
+  function find(obj, ...keys) {
+    for (const k of keys) {
+      if (obj[k] && typeof obj[k] === 'string') return obj[k];
+    }
+    // Also search one level deep in nested objects
+    const nested = ['aircraft','flugzeug','plane','route','flugplan','flightplan','meta','data','info'];
+    for (const nk of nested) {
+      if (obj[nk] && typeof obj[nk] === 'object' && !Array.isArray(obj[nk])) {
+        for (const k of keys) {
+          if (obj[nk][k] && typeof obj[nk][k] === 'string') return obj[nk][k];
+        }
+      }
+    }
+    return '';
+  }
+
+  const reg  = find(d, 'kennzeichen','registration','callsign','aircraft','tail','flugzeug','rego');
+  const dep  = find(d, 'abflug','departure','from','origin','start','dep','abflughafen');
+  const dest = find(d, 'ziel','destination','to','dest','arrival','zielhafen','ankunft');
+  const name = find(d, 'name','routeName','title','routing','route','notiz','note','bemerkung');
 
   if (reg)  document.getElementById('iReg').value  = reg.toUpperCase();
-  if (dep)  document.getElementById('iDep').value  = dep.toUpperCase();
-  if (dest) document.getElementById('iDest').value = dest.toUpperCase();
-  document.getElementById('iNote').value = name || (dep && dest ? `VFR ${dep}→${dest}` : '');
+  if (dep)  document.getElementById('iDep').value  = dep.toUpperCase().slice(0,4);
+  if (dest) document.getElementById('iDest').value = dest.toUpperCase().slice(0,4);
+  document.getElementById('iNote').value = name || (dep && dest ? `VFR ${dep.toUpperCase()}→${dest.toUpperCase()}` : '');
 
   updateExport();
   checkMetaComplete();
-  toast(`✓ Route geladen: ${dep||reg} → ${dest||name}`);
+  toast(`✓ Route geladen: ${reg ? reg.toUpperCase()+' · ' : ''}${dep||'?'} → ${dest||'?'}`);
   saveCurrentFlight();
 }
 
 // ─── LOG EVENT ───────────────────────────────────────────────────
 function log_event(type, label) {
+  // Guard: Flugdaten Info must be complete first
+  const reg  = document.getElementById('iReg').value.trim();
+  const dep  = document.getElementById('iDep').value.trim();
+  const dest = document.getElementById('iDest').value.trim();
+  if (!reg || !dep || !dest) {
+    toast('⚠️ Bitte zuerst Kennzeichen, Abflug und Ziel ausfüllen');
+    // Flash the meta section to draw attention
+    const sec = document.getElementById('b-meta').closest('.sec');
+    sec.style.border = '1px solid var(--yellow)';
+    setTimeout(() => sec.style.border = '1px solid var(--border)', 1500);
+    // Make sure meta is open
+    const b = document.getElementById('b-meta');
+    const c = document.getElementById('c-meta');
+    if (b.classList.contains('col')) { b.classList.remove('col'); c.classList.add('open'); }
+    return;
+  }
+
   // Check if already logged
   if (session.find(e => e.type === type)) {
     toast(`⚠️ ${label} wurde bereits erfasst · Zuerst löschen`);
@@ -926,7 +959,7 @@ async function loadFlightFile(id, name) {
     document.getElementById('iDep').value  = d.departure || d.icao || '';
     document.getElementById('iDest').value = d.destination || '';
     document.getElementById('iNote').value = d.note || '';
-    renderLog(); updateButtonStates(); updateExport();
+    renderLog(); updateButtonStates(); updateExport(); checkMetaComplete();
     document.getElementById('saveBtn').disabled = !session.length;
     toast(`✅ Geladen: ${name}`);
     window.scrollTo({top:0,behavior:'smooth'});
@@ -945,7 +978,7 @@ function clearFlight() {
   session = [];
   ['iReg','iDep','iDest','iNote'].forEach(id => document.getElementById(id).value = '');
   document.querySelectorAll('.route-pill').forEach(p => p.classList.remove('selected'));
-  renderLog(); updateButtonStates();
+  renderLog(); updateButtonStates(); checkMetaComplete();
   document.getElementById('expSec').style.display = 'none';
   const sb = document.getElementById('saveBtn');
   sb.style.display = 'block';
@@ -965,6 +998,7 @@ function toast(msg) {
 // ─── INIT ────────────────────────────────────────────────────────
 window.onload = () => {
   updateConnStatus();
+  checkMetaComplete(); // set initial button state (greyed out)
   const chk = setInterval(() => { if (window.google?.accounts?.id) { clearInterval(chk); initGSI(); } }, 200);
 };
 ['iReg','iDep','iDest','iNote'].forEach(id => {
@@ -979,22 +1013,30 @@ function checkMetaComplete() {
   const reg  = document.getElementById('iReg').value.trim();
   const dep  = document.getElementById('iDep').value.trim();
   const dest = document.getElementById('iDest').value.trim();
-  // Open timestamps section as soon as reg + dep + dest are filled
-  if (reg && dep && dest) {
+  const complete = !!(reg && dep && dest);
+
+  // Open timestamps + log sections when complete
+  if (complete) {
     const b = document.getElementById('b-act');
     const c = document.getElementById('c-act');
-    if (b.classList.contains('col')) {
-      b.classList.remove('col');
-      c.classList.add('open');
-      // Also open log section
-      const bl = document.getElementById('b-log');
-      const cl = document.getElementById('c-log');
-      if (bl.classList.contains('col')) {
-        bl.classList.remove('col');
-        cl.classList.add('open');
-      }
-    }
+    if (b.classList.contains('col')) { b.classList.remove('col'); c.classList.add('open'); }
+    const bl = document.getElementById('b-log');
+    const cl = document.getElementById('c-log');
+    if (bl.classList.contains('col')) { bl.classList.remove('col'); cl.classList.add('open'); }
   }
+
+  // Grey out action buttons when incomplete (but don't disable already-done ones)
+  ['motor_on','start','motor_off'].forEach(type => {
+    const btn = document.getElementById('btn-'+type);
+    const alreadyDone = !!session.find(e => e.type === type);
+    if (!complete && !alreadyDone) {
+      btn.style.opacity = '0.35';
+      btn.style.filter  = 'grayscale(0.6)';
+    } else if (!alreadyDone) {
+      btn.style.opacity = '';
+      btn.style.filter  = '';
+    }
+  });
 }
 </script>
 </body>
