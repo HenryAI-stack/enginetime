@@ -122,15 +122,6 @@
   .ldel:hover{color:var(--red)}
   .lempty{font-family:var(--mono);font-size:11px;color:var(--text2);text-align:center;padding:20px 0;letter-spacing:1px}
 
-  /* PROGRESS INDICATOR */
-  .progress-wrap{display:flex;gap:8px;margin-bottom:12px}
-  .prog-step{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 6px;text-align:center;transition:background .3s,border-color .3s}
-  .prog-step.done{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.4)}
-  .prog-step.pending{background:rgba(255,209,102,.06);border-color:rgba(255,209,102,.25)}
-  .prog-ico{font-size:16px}
-  .prog-lbl{font-family:var(--mono);font-size:8px;color:var(--text2);letter-spacing:.5px;margin-top:2px}
-  .prog-step.done .prog-lbl{color:var(--green)}
-
   /* BOTTOM BTNS */
   .bact{padding:12px 14px 0;display:flex;flex-direction:column;gap:8px}
   .btn-p{background:var(--accent);color:#000;border:none;border-radius:8px;padding:14px 20px;font-family:var(--sans);font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;width:100%;transition:opacity .15s,transform .1s}
@@ -271,22 +262,8 @@
       </div>
       <div class="sec-body" id="b-act" style="padding:0">
 
-        <!-- PROGRESS -->
-        <div style="padding:14px 14px 6px">
-          <div class="progress-wrap">
-            <div class="prog-step" id="prog-motor_on">
-              <div class="prog-ico">🔑</div>
-              <div class="prog-lbl">MOTOR AN</div>
-            </div>
-            <div class="prog-step" id="prog-start">
-              <div class="prog-ico">🛫</div>
-              <div class="prog-lbl">START</div>
-            </div>
-            <div class="prog-step" id="prog-motor_off">
-              <div class="prog-ico">🛑</div>
-              <div class="prog-lbl">MOTOR AUS</div>
-            </div>
-          </div>
+        <!-- AUTO-SAVE STATUS -->
+        <div style="padding:12px 14px 4px">
           <div class="autosave-info" id="autosaveInfo">Automatisches Speichern nach allen 3 Timestamps</div>
         </div>
 
@@ -482,8 +459,22 @@ function tog(id) {
 }
 
 // ─── GOOGLE AUTH ─────────────────────────────────────────────────
+let tokenClient = null;
+
 function initGSI() {
-  google.accounts.id.initialize({ client_id: CLIENT_ID, callback: handleCred, auto_select: false });
+  // Initialize token client ONCE at startup
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: tr => { if (tr.access_token) { token = tr.access_token; onIn(); } }
+  });
+
+  google.accounts.id.initialize({
+    client_id: CLIENT_ID,
+    callback: handleCred,
+    auto_select: false,
+    use_fedcm_for_prompt: false
+  });
   google.accounts.id.renderButton(document.getElementById('g-btn'), {
     theme:'filled_black', size:'large', text:'signin_with', shape:'rectangular', locale:'de', width:280
   });
@@ -491,11 +482,8 @@ function initGSI() {
 
 function handleCred(resp) {
   user = parseJWT(resp.credential);
-  const tc = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID, scope: SCOPES,
-    callback: tr => { if (tr.access_token) { token = tr.access_token; onIn(); } }
-  });
-  tc.requestAccessToken();
+  // Reuse the already-initialized token client — no new popup needed
+  tokenClient.requestAccessToken({ prompt: '' });
 }
 
 function parseJWT(t) {
@@ -531,40 +519,56 @@ function signOut() {
 }
 
 // ─── VFR TOOL ROUTES ─────────────────────────────────────────────
-// The VFR tool stores routes in Drive appDataFolder as vfrroute_*.json
-// Each has: {registration, departure, destination, routing, name, ...}
+// The VFR tool stores routes in Drive appDataFolder.
+// Try multiple known prefixes used by the tool.
 async function loadVFRRoutes() {
   const el = document.getElementById('vfrRoutes');
   if (!token) { el.innerHTML = '<span class="routes-loading">Anmeldung erforderlich</span>'; return; }
 
   try {
-    // Search for both vfrroute_ prefix files AND any saved route files from the VFR tool
+    // Fetch ALL appDataFolder files and filter client-side for max compatibility
     const r = await fetch(
-      `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name+contains+'vfrroute_'&fields=files(id,name,createdTime)&orderBy=createdTime+desc&pageSize=20`,
+      `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name,createdTime,mimeType)&orderBy=createdTime+desc&pageSize=100`,
       { headers: { Authorization:`Bearer ${token}` } }
     );
     const d = await r.json();
-    const files = d.files || [];
+    const allFiles = d.files || [];
 
-    if (!files.length) {
+    // Filter: VFR tool files — could be vfrroute_, vfrplan_, route_, flightplan_, or any json not starting with enginelog_
+    const vfrFiles = allFiles.filter(f => {
+      const n = f.name.toLowerCase();
+      return !n.startsWith('enginelog_') && n.endsWith('.json');
+    });
+
+    if (!vfrFiles.length) {
       el.innerHTML = '<span class="routes-loading">📭 Keine VFR-Routen gefunden · Bitte zuerst im VFR-Tool speichern</span>';
       return;
     }
 
-    // Load each file's content
+    // Load content of each candidate file
     const routes = [];
-    for (const f of files.slice(0, 10)) {
+    for (const f of vfrFiles.slice(0, 15)) {
       try {
         const fr = await fetch(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`,
           { headers: { Authorization:`Bearer ${token}` } });
         const rd = await fr.json();
-        routes.push({ file: f, data: rd });
-      } catch(e) { /* skip */ }
+        // Only include if it looks like a VFR route (has departure/destination/waypoints type data)
+        const isRoute = rd.abflug || rd.ziel || rd.departure || rd.destination ||
+                        rd.from || rd.to || rd.waypoints || rd.route || rd.routing ||
+                        rd.kennzeichen || rd.callsign || rd.registration;
+        if (isRoute) routes.push({ file: f, data: rd });
+      } catch(e) { /* skip malformed */ }
+    }
+
+    if (!routes.length) {
+      el.innerHTML = '<span class="routes-loading">📭 Keine VFR-Routen gefunden · Bitte zuerst im VFR-Tool speichern</span>';
+      return;
     }
 
     renderVFRRoutes(routes);
   } catch(e) {
     el.innerHTML = '<span class="routes-loading">⚠️ Routen konnten nicht geladen werden</span>';
+    console.error('VFR load error:', e);
   }
 }
 
@@ -577,18 +581,20 @@ function renderVFRRoutes(routes) {
 
   el.innerHTML = routes.map((r,i) => {
     const d = r.data;
-    const reg  = d.registration || d.callsign || d.aircraft || '–';
-    const dep  = d.departure || d.from || d.abflug || '';
-    const dest = d.destination || d.to || d.ziel || '';
-    const name = d.name || d.routeName || '';
-    const route = dep && dest ? `${dep} → ${dest}` : (name || r.file.name.replace('vfrroute_','').replace('.json',''));
-    return `<span class="route-pill" onclick="selectVFRRoute(${i})" id="rpill-${i}" data-idx="${i}">
-      <span class="route-pill-reg">${reg}</span>
-      <span class="route-pill-route">${route}</span>
+    // Support both German (VFR-Tool) and English field names
+    const reg  = d.kennzeichen || d.registration || d.callsign || d.aircraft || '–';
+    const dep  = d.abflug || d.departure || d.from || '';
+    const dest = d.ziel  || d.destination || d.to  || '';
+    const name = d.name  || d.routeName   || d.routing || '';
+    const label = dep && dest
+      ? `${dep.toUpperCase()} → ${dest.toUpperCase()}`
+      : (name || r.file.name.replace('.json','').replace(/^[a-z]+_/,''));
+    return `<span class="route-pill" onclick="selectVFRRoute(${i})" id="rpill-${i}">
+      <span class="route-pill-reg">${reg.toUpperCase()}</span>
+      <span class="route-pill-route">${label}</span>
     </span>`;
   }).join('');
 
-  // store for selection
   window._vfrRoutes = routes;
 }
 
@@ -598,20 +604,19 @@ function selectVFRRoute(idx) {
   if (!r) return;
   const d = r.data;
 
-  // Deselect all
   document.querySelectorAll('.route-pill').forEach(p => p.classList.remove('selected'));
   document.getElementById('rpill-'+idx)?.classList.add('selected');
 
-  // Fill fields
-  const reg  = d.registration || d.callsign || d.aircraft || '';
-  const dep  = d.departure || d.from || d.abflug || '';
-  const dest = d.destination || d.to || d.ziel || '';
-  const name = d.name || d.routeName || d.routing || '';
+  // Support both German (VFR-Tool) and English field names
+  const reg  = d.kennzeichen || d.registration || d.callsign || d.aircraft || '';
+  const dep  = d.abflug  || d.departure || d.from || '';
+  const dest = d.ziel    || d.destination || d.to  || '';
+  const name = d.name    || d.routeName  || d.routing || '';
 
   if (reg)  document.getElementById('iReg').value  = reg.toUpperCase();
   if (dep)  document.getElementById('iDep').value  = dep.toUpperCase();
   if (dest) document.getElementById('iDest').value = dest.toUpperCase();
-  if (name || (dep&&dest)) document.getElementById('iNote').value = name || `VFR ${dep}→${dest}`;
+  document.getElementById('iNote').value = name || (dep && dest ? `VFR ${dep}→${dest}` : '');
 
   updateExport();
   toast(`✓ Route geladen: ${dep||reg} → ${dest||name}`);
@@ -640,7 +645,6 @@ function log_event(type, label) {
   updateButtonStates();
   renderLog();
   updateExport();
-  updateProgress();
   document.getElementById('saveBtn').disabled = false;
   toast(`✓ ${label} · ${e.lTime} (${e.uTime} UTC)`);
   if (navigator.vibrate) navigator.vibrate(60);
@@ -673,14 +677,6 @@ function updateButtonStates() {
   });
 }
 
-function updateProgress() {
-  ['motor_on','start','motor_off'].forEach(type => {
-    const step = document.getElementById('prog-'+type);
-    const done = !!session.find(e => e.type === type);
-    step.className = 'prog-step' + (done ? ' done' : '');
-  });
-}
-
 function renderLog() {
   const el = document.getElementById('logList');
   if (!session.length) { el.innerHTML = '<div class="lempty">📭 · Noch keine Timestamps erfasst</div>'; return; }
@@ -702,12 +698,17 @@ function renderLog() {
 function delEvent(id) {
   session = session.filter(e => e.id !== id);
   updateButtonStates();
-  updateProgress();
   renderLog();
   updateExport();
   saveCurrentFlight();
   document.getElementById('autosaveInfo').textContent = 'Automatisches Speichern nach allen 3 Timestamps';
-  if (!session.length) document.getElementById('saveBtn').disabled = true;
+  const sb = document.getElementById('saveBtn');
+  if (!session.length) {
+    sb.disabled = true;
+  } else {
+    sb.style.display = 'block';
+    sb.disabled = false;
+  }
 }
 
 // ─── AUTO-SAVE LOGIC ─────────────────────────────────────────────
@@ -716,12 +717,11 @@ async function autoSaveAll() {
   const filename = buildFilename();
 
   if (!isOnline || !token) {
-    // Save locally
     addToPending(data, filename);
     saveCurrentFlight();
     document.getElementById('autosaveInfo').textContent = '📴 Offline gespeichert · Sync bei Verbindung';
     toast('📴 Offline gespeichert · Wird bei Verbindung synchronisiert');
-    document.getElementById('saveBtn').disabled = false;
+    hideSaveButton();
     return;
   }
 
@@ -729,13 +729,20 @@ async function autoSaveAll() {
     await driveUpload(filename, JSON.stringify(data, null, 2));
     document.getElementById('autosaveInfo').textContent = '✅ In Google Drive gespeichert';
     toast('✅ Automatisch in Google Drive gespeichert');
+    hideSaveButton();
     clearCurrentFlight();
     loadFlightList();
   } catch(e) {
     addToPending(data, filename);
     document.getElementById('autosaveInfo').textContent = '⚠️ Fehler · Lokal gespeichert · Retry bei Verbindung';
     toast('⚠️ Fehler · Lokal zwischengespeichert');
+    hideSaveButton();
   }
+}
+
+function hideSaveButton() {
+  const btn = document.getElementById('saveBtn');
+  btn.style.display = 'none';
 }
 
 async function saveNow() {
@@ -746,6 +753,7 @@ async function saveNow() {
   if (!isOnline || !token) {
     addToPending(data, filename);
     toast('📴 Offline gespeichert · Wird bei Verbindung synchronisiert');
+    hideSaveButton();
     return;
   }
 
@@ -753,6 +761,7 @@ async function saveNow() {
     toast('⏳ Speichern …');
     await driveUpload(filename, JSON.stringify(data, null, 2));
     toast('✅ Flugdaten in Google Drive gespeichert');
+    hideSaveButton();
     clearCurrentFlight();
     loadFlightList();
   } catch(e) {
@@ -802,7 +811,7 @@ function restoreCurrentFlight() {
       document.getElementById('iDep').value  = d.dep  || '';
       document.getElementById('iDest').value = d.dest || '';
       document.getElementById('iNote').value = d.note || '';
-      renderLog(); updateButtonStates(); updateProgress(); updateExport();
+      renderLog(); updateButtonStates(); updateExport();
       document.getElementById('saveBtn').disabled = false;
       toast('🔄 Aktuelle Flugdaten wiederhergestellt');
     }
@@ -896,7 +905,7 @@ async function loadFlightFile(id, name) {
     document.getElementById('iDep').value  = d.departure || d.icao || '';
     document.getElementById('iDest').value = d.destination || '';
     document.getElementById('iNote').value = d.note || '';
-    renderLog(); updateButtonStates(); updateProgress(); updateExport();
+    renderLog(); updateButtonStates(); updateExport();
     document.getElementById('saveBtn').disabled = !session.length;
     toast(`✅ Geladen: ${name}`);
     window.scrollTo({top:0,behavior:'smooth'});
@@ -914,11 +923,12 @@ function clearFlight() {
   if (session.length && !confirm('Aktuelle Flugdaten verwerfen?')) return;
   session = [];
   ['iReg','iDep','iDest','iNote'].forEach(id => document.getElementById(id).value = '');
-  // deselect route pills
   document.querySelectorAll('.route-pill').forEach(p => p.classList.remove('selected'));
-  renderLog(); updateButtonStates(); updateProgress();
+  renderLog(); updateButtonStates();
   document.getElementById('expSec').style.display = 'none';
-  document.getElementById('saveBtn').disabled = true;
+  const sb = document.getElementById('saveBtn');
+  sb.style.display = 'block';
+  sb.disabled = true;
   document.getElementById('autosaveInfo').textContent = 'Automatisches Speichern nach allen 3 Timestamps';
   clearCurrentFlight();
   toast('Flugdaten zurückgesetzt');
