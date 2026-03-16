@@ -7,143 +7,158 @@
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0d0f14;
-    --bg2: #13161e;
-    --bg3: #1a1e2a;
-    --border: #2a2f3d;
-    --accent: #00c9a7;
-    --text: #e8eaf0;
-    --text2: #8a90a0;
-    --red: #ef4444;
-    --green: #22c55e;
-    --yellow: #ffd166;
-    --mono: 'Share Tech Mono', monospace;
-    --sans: 'Barlow Condensed', sans-serif;
+    --bg:#0d0f14; --bg2:#13161e; --bg3:#1a1e2a; --border:#2a2f3d;
+    --accent:#00c9a7; --text:#e8eaf0; --text2:#8a90a0;
+    --red:#ef4444; --green:#22c55e; --yellow:#ffd166;
+    --mono:'Share Tech Mono',monospace; --sans:'Barlow Condensed',sans-serif;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; overflow-x: hidden; }
-  body::before {
-    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.3;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  }
-  .wrap { position: relative; z-index: 1; max-width: 480px; margin: 0 auto; padding-bottom: 48px; }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.3;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")}
+  .wrap{position:relative;z-index:1;max-width:480px;margin:0 auto;padding-bottom:48px}
 
   /* HEADER */
-  .hdr {
-    background: linear-gradient(180deg,#090b10 0%,var(--bg) 100%);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 18px 12px;
-    display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 100;
-  }
-  .hdr-left { display: flex; align-items: center; gap: 10px; }
-  .hdr-icon { font-size: 22px; filter: drop-shadow(0 0 8px var(--accent)); }
-  .hdr-title { font-family: var(--sans); font-weight: 900; font-size: 19px; letter-spacing: 2.5px; line-height:1; }
-  .hdr-sub { font-family: var(--mono); font-size: 9px; color: var(--accent); letter-spacing: 1px; margin-top:2px; }
-  .hdr-right { display: flex; align-items: center; gap: 8px; }
-  .avatar { width:30px; height:30px; border-radius:50%; border:2px solid var(--accent); object-fit:cover; display:none; }
-  .uname { font-family: var(--mono); font-size:10px; color:var(--text2); max-width:75px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:none; }
-  .logout-btn { background:none; border:1px solid var(--border); color:var(--text2); border-radius:5px; padding:5px 10px; font-family:var(--mono); font-size:9px; cursor:pointer; letter-spacing:1px; transition:border-color .15s,color .15s; }
-  .logout-btn:hover { border-color:var(--red); color:var(--red); }
+  .hdr{background:linear-gradient(180deg,#090b10 0%,var(--bg) 100%);border-bottom:1px solid var(--border);
+    padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  .hdr-left{display:flex;align-items:center;gap:10px}
+  .hdr-icon{font-size:22px;filter:drop-shadow(0 0 8px var(--accent))}
+  .hdr-title{font-family:var(--sans);font-weight:900;font-size:19px;letter-spacing:2.5px;line-height:1}
+  .hdr-sub{font-family:var(--mono);font-size:9px;color:var(--accent);letter-spacing:1px;margin-top:2px}
+  .hdr-right{display:flex;align-items:center;gap:8px}
+  .avatar{width:30px;height:30px;border-radius:50%;border:2px solid var(--accent);object-fit:cover;display:none}
+  .uname{font-family:var(--mono);font-size:10px;color:var(--text2);max-width:75px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:none}
+  .logout-btn{background:none;border:1px solid var(--border);color:var(--text2);border-radius:5px;padding:5px 10px;font-family:var(--mono);font-size:9px;cursor:pointer;letter-spacing:1px;transition:border-color .15s,color .15s}
+  .logout-btn:hover{border-color:var(--red);color:var(--red)}
 
   /* STATUS */
-  .sbar { display:flex; align-items:center; gap:8px; padding:7px 18px; background:var(--bg2); border-bottom:1px solid var(--border); font-family:var(--mono); font-size:10px; color:var(--text2); }
-  .sdot { width:6px;height:6px;border-radius:50%;background:var(--text2);flex-shrink:0; }
-  .sdot.on { background:var(--green); box-shadow:0 0 6px var(--green); animation:blink 2s infinite; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+  .sbar{display:flex;align-items:center;gap:8px;padding:7px 18px;background:var(--bg2);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--text2)}
+  .sdot{width:6px;height:6px;border-radius:50%;background:var(--text2);flex-shrink:0}
+  .sdot.on{background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 2s infinite}
+  .sdot.warn{background:var(--yellow);box-shadow:0 0 6px var(--yellow);animation:blink 1s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+
+  /* OFFLINE BANNER */
+  #offlineBanner{display:none;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.35);
+    border-radius:8px;margin:10px 14px 0;padding:10px 14px;font-family:var(--mono);font-size:10px;
+    color:var(--yellow);letter-spacing:.5px;line-height:1.6}
+  #offlineBanner.show{display:block}
+
+  /* PENDING BADGE */
+  .pending-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,209,102,.12);
+    border:1px solid rgba(255,209,102,.3);border-radius:4px;padding:2px 8px;
+    font-family:var(--mono);font-size:9px;color:var(--yellow);letter-spacing:1px;margin-left:8px}
 
   /* LOGIN */
-  #login { padding: 56px 20px; text-align:center; }
-  .lcard { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:40px 24px; }
-  .licon { font-size:52px; margin-bottom:14px; filter:drop-shadow(0 0 18px var(--accent)); }
-  .ltitle { font-family:var(--sans); font-weight:900; font-size:28px; letter-spacing:3px; margin-bottom:8px; }
-  .lsub { font-family:var(--mono); font-size:10px; color:var(--text2); line-height:1.7; margin-bottom:32px; }
-  .gbtn { display:flex;align-items:center;justify-content:center;gap:12px;background:#fff;color:#3c4043;border:none;border-radius:8px;padding:14px 24px;font-family:var(--sans);font-weight:700;font-size:15px;cursor:pointer;width:100%;transition:background .15s,transform .1s; }
-  .gbtn:active { transform:scale(.97); background:#eee; }
-  .gbtn svg { width:20px;height:20px;flex-shrink:0; }
+  #login{padding:56px 20px;text-align:center}
+  .lcard{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:40px 24px}
+  .licon{font-size:52px;margin-bottom:14px;filter:drop-shadow(0 0 18px var(--accent))}
+  .ltitle{font-family:var(--sans);font-weight:900;font-size:28px;letter-spacing:3px;margin-bottom:8px}
+  .lsub{font-family:var(--mono);font-size:10px;color:var(--text2);line-height:1.7;margin-bottom:32px}
 
   /* SECTIONS */
-  #app { display:none; }
-  .sec { margin:14px 14px 0; background:var(--bg2); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
-  .sec-hdr { display:flex;align-items:center;justify-content:space-between;padding:11px 15px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none; }
-  .sec-title { display:flex;align-items:center;gap:8px;font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:2px;color:var(--text2);text-transform:uppercase; }
-  .chev { font-size:10px;color:var(--text2);transition:transform .2s; }
-  .chev.open { transform:rotate(180deg); }
-  .sec-body { padding:14px; }
-  .sec-body.col { display:none; }
+  #app{display:none}
+  .sec{margin:14px 14px 0;background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:11px 15px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+  .sec-title{display:flex;align-items:center;gap:8px;font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:2px;color:var(--text2);text-transform:uppercase}
+  .chev{font-size:10px;color:var(--text2);transition:transform .2s}
+  .chev.open{transform:rotate(180deg)}
+  .sec-body{padding:14px}
+  .sec-body.col{display:none}
 
   /* CLOCK */
-  .clk-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
-  .clk-card { background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center; }
-  .clk-lbl { font-family:var(--mono);font-size:9px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px; }
-  .clk-val { font-family:var(--mono);font-size:20px;color:var(--accent);letter-spacing:1px; }
-  .clk-date { font-family:var(--mono);font-size:9px;color:var(--text2);margin-top:2px; }
+  .clk-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .clk-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+  .clk-lbl{font-family:var(--mono);font-size:9px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+  .clk-val{font-family:var(--mono);font-size:20px;color:var(--accent);letter-spacing:1px}
+  .clk-date{font-family:var(--mono);font-size:9px;color:var(--text2);margin-top:2px}
 
   /* META */
-  .meta-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
-  .mlbl { font-family:var(--mono);font-size:9px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px; }
-  .minput { background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-family:var(--mono);font-size:13px;color:var(--text);width:100%;outline:none;transition:border-color .15s;text-transform:uppercase; }
-  .minput:focus { border-color:var(--accent); }
-  .minput::placeholder { color:var(--text2);text-transform:none; }
+  .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mlbl{font-family:var(--mono);font-size:9px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+  .minput{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-family:var(--mono);font-size:13px;color:var(--text);width:100%;outline:none;transition:border-color .15s;text-transform:uppercase}
+  .minput:focus{border-color:var(--accent)}
+  .minput::placeholder{color:var(--text2);text-transform:none}
+
+  /* ROUTE PICKER */
+  .route-pill{display:inline-flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:5px 12px 5px 8px;cursor:pointer;transition:border-color .15s;margin:3px 3px 3px 0}
+  .route-pill:hover{border-color:var(--accent)}
+  .route-pill.selected{border-color:var(--accent);background:rgba(0,201,167,.1)}
+  .route-pill-reg{font-family:var(--sans);font-weight:900;font-size:13px;letter-spacing:1.5px;color:var(--accent)}
+  .route-pill-route{font-family:var(--mono);font-size:10px;color:var(--text2)}
+  .routes-loading{font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:1px;padding:8px 0}
 
   /* BIG BUTTONS */
-  .abtn-wrap { display:flex;flex-direction:column;gap:10px;padding:14px; }
-  .abtn { position:relative;border:none;border-radius:12px;padding:0;cursor:pointer;overflow:hidden;width:100%;transition:transform .1s,box-shadow .2s;-webkit-appearance:none; }
-  .abtn:active { transform:scale(.97); }
-  .abtn-inner { display:flex;align-items:center;justify-content:space-between;padding:22px 20px;width:100%; }
-  .abtn-left { display:flex;align-items:center;gap:14px; }
-  .abtn-ico { font-size:34px;line-height:1; }
-  .abtn-title { font-family:var(--sans);font-weight:900;font-size:24px;letter-spacing:2px;line-height:1;color:#fff;text-align:left; }
-  .abtn-sub { font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.55);letter-spacing:1px;margin-top:2px;text-align:left; }
-  .abtn-arr { font-size:26px;color:rgba(255,255,255,.3);font-weight:900; }
+  .abtn-wrap{display:flex;flex-direction:column;gap:10px;padding:14px}
+  .abtn{position:relative;border:none;border-radius:12px;padding:0;cursor:pointer;overflow:hidden;width:100%;transition:transform .1s,box-shadow .2s,opacity .25s;-webkit-appearance:none}
+  .abtn:active:not(:disabled){transform:scale(.97)}
+  .abtn:disabled{opacity:.38;cursor:not-allowed;filter:grayscale(.5)}
+  .abtn-inner{display:flex;align-items:center;justify-content:space-between;padding:22px 20px;width:100%}
+  .abtn-left{display:flex;align-items:center;gap:14px}
+  .abtn-ico{font-size:34px;line-height:1}
+  .abtn-title{font-family:var(--sans);font-weight:900;font-size:24px;letter-spacing:2px;line-height:1;color:#fff;text-align:left}
+  .abtn-sub{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.55);letter-spacing:1px;margin-top:2px;text-align:left}
+  .abtn-arr{font-size:26px;color:rgba(255,255,255,.3);font-weight:900}
+  .abtn-done{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.7);letter-spacing:1px;text-align:right}
 
-  .btn-on  { background:linear-gradient(135deg,#1a3a2a,#0d2219);border:2px solid var(--green);box-shadow:0 4px 20px rgba(34,197,94,.2); }
-  .btn-on .abtn-ico { filter:drop-shadow(0 0 8px var(--green)); }
-  .btn-go  { background:linear-gradient(135deg,#1a2e3a,#0d1e29);border:2px solid var(--accent);box-shadow:0 4px 20px rgba(0,201,167,.2); }
-  .btn-go .abtn-ico { filter:drop-shadow(0 0 8px var(--accent)); }
-  .btn-off { background:linear-gradient(135deg,#3a1a1a,#290d0d);border:2px solid var(--red);box-shadow:0 4px 20px rgba(239,68,68,.2); }
-  .btn-off .abtn-ico { filter:drop-shadow(0 0 8px var(--red)); }
+  .btn-on{background:linear-gradient(135deg,#1a3a2a,#0d2219);border:2px solid var(--green);box-shadow:0 4px 20px rgba(34,197,94,.2)}
+  .btn-on .abtn-ico{filter:drop-shadow(0 0 8px var(--green))}
+  .btn-go{background:linear-gradient(135deg,#1a2e3a,#0d1e29);border:2px solid var(--accent);box-shadow:0 4px 20px rgba(0,201,167,.2)}
+  .btn-go .abtn-ico{filter:drop-shadow(0 0 8px var(--accent))}
+  .btn-off{background:linear-gradient(135deg,#3a1a1a,#290d0d);border:2px solid var(--red);box-shadow:0 4px 20px rgba(239,68,68,.2)}
+  .btn-off .abtn-ico{filter:drop-shadow(0 0 8px var(--red))}
 
   /* LOG LIST */
-  .lentry { background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 13px;margin-bottom:8px;display:flex;align-items:flex-start;gap:11px; }
-  .lentry:last-child { margin-bottom:0; }
-  .lico-wrap { width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0; }
-  .ic-g { background:rgba(34,197,94,.13);border:1px solid rgba(34,197,94,.28); }
-  .ic-t { background:rgba(0,201,167,.13);border:1px solid rgba(0,201,167,.28); }
-  .ic-r { background:rgba(239,68,68,.13);border:1px solid rgba(239,68,68,.28); }
-  .ltype { font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:2px; }
-  .ltime { font-family:var(--mono);font-size:16px;color:var(--text);letter-spacing:.5px; }
-  .lutc { font-family:var(--mono);font-size:11px;color:var(--text2);margin-top:2px; }
-  .ldel { background:none;border:none;cursor:pointer;color:var(--text2);font-size:15px;padding:4px;border-radius:4px;transition:color .15s;flex-shrink:0; }
-  .ldel:hover { color:var(--red); }
-  .lempty { font-family:var(--mono);font-size:11px;color:var(--text2);text-align:center;padding:20px 0;letter-spacing:1px; }
+  .lentry{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 13px;margin-bottom:8px;display:flex;align-items:flex-start;gap:11px}
+  .lentry:last-child{margin-bottom:0}
+  .lico-wrap{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .ic-g{background:rgba(34,197,94,.13);border:1px solid rgba(34,197,94,.28)}
+  .ic-t{background:rgba(0,201,167,.13);border:1px solid rgba(0,201,167,.28)}
+  .ic-r{background:rgba(239,68,68,.13);border:1px solid rgba(239,68,68,.28)}
+  .ltype{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:2px}
+  .ltime{font-family:var(--mono);font-size:16px;color:var(--text);letter-spacing:.5px}
+  .lutc{font-family:var(--mono);font-size:11px;color:var(--text2);margin-top:2px}
+  .ldel{background:none;border:none;cursor:pointer;color:var(--text2);font-size:15px;padding:4px;border-radius:4px;transition:color .15s;flex-shrink:0}
+  .ldel:hover{color:var(--red)}
+  .lempty{font-family:var(--mono);font-size:11px;color:var(--text2);text-align:center;padding:20px 0;letter-spacing:1px}
+
+  /* PROGRESS INDICATOR */
+  .progress-wrap{display:flex;gap:8px;margin-bottom:12px}
+  .prog-step{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 6px;text-align:center;transition:background .3s,border-color .3s}
+  .prog-step.done{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.4)}
+  .prog-step.pending{background:rgba(255,209,102,.06);border-color:rgba(255,209,102,.25)}
+  .prog-ico{font-size:16px}
+  .prog-lbl{font-family:var(--mono);font-size:8px;color:var(--text2);letter-spacing:.5px;margin-top:2px}
+  .prog-step.done .prog-lbl{color:var(--green)}
 
   /* BOTTOM BTNS */
-  .bact { padding:12px 14px 0;display:flex;flex-direction:column;gap:8px; }
-  .btn-p { background:var(--accent);color:#000;border:none;border-radius:8px;padding:14px 20px;font-family:var(--sans);font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;width:100%;transition:opacity .15s,transform .1s; }
-  .btn-p:active { transform:scale(.98); }
-  .btn-p:disabled { opacity:.4;cursor:not-allowed; }
-  .btn-s { background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:8px;padding:12px 20px;font-family:var(--sans);font-weight:600;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;width:100%;transition:border-color .15s,color .15s,transform .1s; }
-  .btn-s:active { transform:scale(.98); }
-  .btn-s:hover { border-color:var(--accent);color:var(--accent); }
+  .bact{padding:12px 14px 0;display:flex;flex-direction:column;gap:8px}
+  .btn-p{background:var(--accent);color:#000;border:none;border-radius:8px;padding:14px 20px;font-family:var(--sans);font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;width:100%;transition:opacity .15s,transform .1s}
+  .btn-p:active{transform:scale(.98)}
+  .btn-p:disabled{opacity:.4;cursor:not-allowed}
+  .btn-s{background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:8px;padding:12px 20px;font-family:var(--sans);font-weight:600;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;width:100%;transition:border-color .15s,color .15s,transform .1s}
+  .btn-s:active{transform:scale(.98)}
+  .btn-s:hover{border-color:var(--accent);color:var(--accent)}
 
   /* SAVED */
-  .sentry { background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 13px;margin-bottom:8px;cursor:pointer;transition:border-color .15s; }
-  .sentry:hover { border-color:var(--accent); }
-  .srow { display:flex;align-items:center;justify-content:space-between;margin-bottom:4px; }
-  .sreg { font-family:var(--sans);font-weight:900;font-size:16px;letter-spacing:2px;color:var(--accent); }
-  .sdate { font-family:var(--mono);font-size:10px;color:var(--text2); }
-  .sdel-btn { background:none;border:1px solid var(--border);border-radius:5px;color:var(--text2);font-size:11px;padding:3px 7px;cursor:pointer;font-family:var(--mono);transition:border-color .15s,color .15s; }
-  .sdel-btn:hover { border-color:var(--red);color:var(--red); }
+  .sentry{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 13px;margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+  .sentry:hover{border-color:var(--accent)}
+  .srow{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+  .sreg{font-family:var(--sans);font-weight:900;font-size:16px;letter-spacing:2px;color:var(--accent)}
+  .sdate{font-family:var(--mono);font-size:10px;color:var(--text2)}
+  .sdel-btn{background:none;border:1px solid var(--border);border-radius:5px;color:var(--text2);font-size:11px;padding:3px 7px;cursor:pointer;font-family:var(--mono);transition:border-color .15s,color .15s}
+  .sdel-btn:hover{border-color:var(--red);color:var(--red)}
 
   /* EXPORT */
-  .ebox { background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;font-family:var(--mono);font-size:11px;color:var(--text);white-space:pre;line-height:1.8;overflow-x:auto;letter-spacing:.3px; }
+  .ebox{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;font-family:var(--mono);font-size:11px;color:var(--text);white-space:pre;line-height:1.8;overflow-x:auto;letter-spacing:.3px}
 
   /* TOAST */
-  .toast { position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg3);border:1px solid var(--accent);border-radius:8px;padding:10px 20px;font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:1px;z-index:200;transition:transform .3s ease,opacity .3s;opacity:0;pointer-events:none;white-space:nowrap; }
-  .toast.show { transform:translateX(-50%) translateY(0);opacity:1; }
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg3);border:1px solid var(--accent);border-radius:8px;padding:10px 20px;font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:1px;z-index:200;transition:transform .3s ease,opacity .3s;opacity:0;pointer-events:none;white-space:nowrap}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+  .sp{height:8px}
 
-  .sp { height:8px; }
+  /* AUTO-SAVE INDICATOR */
+  .autosave-info{font-family:var(--mono);font-size:9px;color:var(--text2);letter-spacing:.5px;text-align:center;padding:6px 0 2px}
 </style>
 </head>
 <body>
@@ -169,6 +184,12 @@
   <div class="sbar">
     <div class="sdot" id="sdot"></div>
     <span id="stext">Nicht angemeldet · Bitte mit Google-Konto anmelden</span>
+  </div>
+
+  <!-- OFFLINE BANNER -->
+  <div id="offlineBanner">
+    ⚠️ OFFLINE · Flugdaten werden lokal gespeichert und automatisch synchronisiert sobald die Verbindung wiederhergestellt ist.
+    <span id="pendingCount"></span>
   </div>
 
   <!-- LOGIN -->
@@ -208,25 +229,35 @@
       </div>
     </div>
 
-    <!-- META -->
+    <!-- FLUGDATEN INFO -->
     <div class="sec">
       <div class="sec-hdr" onclick="tog('meta')">
-        <span class="sec-title">✈️ &nbsp;SESSION INFO</span>
+        <span class="sec-title">✈️ &nbsp;FLUGDATEN INFO</span>
         <span class="chev open" id="c-meta">▼</span>
       </div>
       <div class="sec-body" id="b-meta">
+
+        <!-- VFR ROUTES from VFR Tool -->
+        <div class="mlbl" style="margin-bottom:6px">Route aus VFR-Tool laden</div>
+        <div id="vfrRoutes" class="routes-loading">⏳ Lade gespeicherte Routen …</div>
+        <div style="height:12px"></div>
+
         <div class="meta-grid">
           <div style="grid-column:1/-1">
             <div class="mlbl">Kennzeichen</div>
             <input class="minput" id="iReg" placeholder="z.B. SP-ABC" maxlength="10">
           </div>
           <div>
-            <div class="mlbl">Platz (ICAO)</div>
-            <input class="minput" id="iIcao" placeholder="EPWA" maxlength="4">
+            <div class="mlbl">Abflug (ICAO)</div>
+            <input class="minput" id="iDep" placeholder="EPWA" maxlength="4">
           </div>
           <div>
-            <div class="mlbl">Flug / Notiz</div>
-            <input class="minput" id="iNote" placeholder="VFR EPWA→EPLL" style="text-transform:none">
+            <div class="mlbl">Ziel (ICAO)</div>
+            <input class="minput" id="iDest" placeholder="EPKK" maxlength="4">
+          </div>
+          <div style="grid-column:1/-1">
+            <div class="mlbl">Notiz / Flug</div>
+            <input class="minput" id="iNote" placeholder="VFR Routing …" style="text-transform:none">
           </div>
         </div>
       </div>
@@ -238,45 +269,65 @@
         <span class="sec-title">⚡ &nbsp;TIMESTAMPS ERFASSEN</span>
         <span class="chev open" id="c-act">▼</span>
       </div>
-      <div class="sec-body col" id="b-act" style="padding:0;display:block">
+      <div class="sec-body" id="b-act" style="padding:0">
+
+        <!-- PROGRESS -->
+        <div style="padding:14px 14px 6px">
+          <div class="progress-wrap">
+            <div class="prog-step" id="prog-motor_on">
+              <div class="prog-ico">🔑</div>
+              <div class="prog-lbl">MOTOR AN</div>
+            </div>
+            <div class="prog-step" id="prog-start">
+              <div class="prog-ico">🛫</div>
+              <div class="prog-lbl">START</div>
+            </div>
+            <div class="prog-step" id="prog-motor_off">
+              <div class="prog-ico">🛑</div>
+              <div class="prog-lbl">MOTOR AUS</div>
+            </div>
+          </div>
+          <div class="autosave-info" id="autosaveInfo">Automatisches Speichern nach allen 3 Timestamps</div>
+        </div>
+
         <div class="abtn-wrap">
 
-          <button class="abtn btn-on" onclick="log_event('motor_on','MOTOR AN')">
+          <button class="abtn btn-on" id="btn-motor_on" onclick="log_event('motor_on','MOTOR AN')">
             <div class="abtn-inner">
               <div class="abtn-left">
                 <span class="abtn-ico">🔑</span>
                 <div>
                   <div class="abtn-title">MOTOR AN</div>
-                  <div class="abtn-sub">ENGINE START · TIMESTAMP</div>
+                  <div class="abtn-sub" id="sub-motor_on">ENGINE START · TIMESTAMP</div>
                 </div>
               </div>
-              <span class="abtn-arr">›</span>
+              <span class="abtn-arr" id="arr-motor_on">›</span>
             </div>
           </button>
 
-          <button class="abtn btn-go" onclick="log_event('start','START')">
+          <button class="abtn btn-go" id="btn-start" onclick="log_event('start','START')">
             <div class="abtn-inner">
               <div class="abtn-left">
                 <span class="abtn-ico">🛫</span>
                 <div>
                   <div class="abtn-title">START</div>
-                  <div class="abtn-sub">TAKE-OFF · TIMESTAMP</div>
+                  <div class="abtn-sub" id="sub-start">TAKE-OFF · TIMESTAMP</div>
                 </div>
               </div>
-              <span class="abtn-arr">›</span>
+              <span class="abtn-arr" id="arr-start">›</span>
             </div>
           </button>
 
-          <button class="abtn btn-off" onclick="log_event('motor_off','MOTOR AUS')">
+          <button class="abtn btn-off" id="btn-motor_off" onclick="log_event('motor_off','MOTOR AUS')">
             <div class="abtn-inner">
               <div class="abtn-left">
                 <span class="abtn-ico">🛑</span>
                 <div>
                   <div class="abtn-title">MOTOR AUS</div>
-                  <div class="abtn-sub">ENGINE OFF · TIMESTAMP</div>
+                  <div class="abtn-sub" id="sub-motor_off">ENGINE OFF · TIMESTAMP</div>
                 </div>
               </div>
-              <span class="abtn-arr">›</span>
+              <span class="abtn-arr" id="arr-motor_off">›</span>
             </div>
           </button>
 
@@ -287,7 +338,7 @@
     <!-- CURRENT LOG -->
     <div class="sec">
       <div class="sec-hdr" onclick="tog('log')">
-        <span class="sec-title">📋 &nbsp;AKTUELLE SESSION</span>
+        <span class="sec-title">📋 &nbsp;AKTUELLE FLUGDATEN</span>
         <span class="chev open" id="c-log">▼</span>
       </div>
       <div class="sec-body" id="b-log">
@@ -310,20 +361,20 @@
 
     <!-- SAVE / CLEAR -->
     <div class="bact">
-      <button class="btn-p" id="saveBtn" onclick="saveSession()" disabled>💾 &nbsp;SESSION IN GOOGLE DRIVE SPEICHERN</button>
-      <button class="btn-s" onclick="clearSession()">✕ &nbsp;SESSION ZURÜCKSETZEN</button>
+      <button class="btn-p" id="saveBtn" onclick="saveNow()" disabled>💾 &nbsp;FLUGDATEN IN GOOGLE DRIVE SPEICHERN</button>
+      <button class="btn-s" onclick="clearFlight()">✕ &nbsp;FLUGDATEN ZURÜCKSETZEN</button>
     </div>
 
-    <!-- SAVED SESSIONS -->
+    <!-- GESPEICHERTE FLUGDATEN -->
     <div class="sec">
       <div class="sec-hdr" onclick="tog('sav')">
-        <span class="sec-title">💾 &nbsp;GESPEICHERTE SESSIONS</span>
+        <span class="sec-title">💾 &nbsp;GESPEICHERTE FLUGDATEN</span>
         <span class="chev" id="c-sav">▼</span>
       </div>
       <div class="sec-body col" id="b-sav">
-        <div id="savList"><div class="lempty">📭 · Keine Sessions vorhanden</div></div>
+        <div id="savList"><div class="lempty">📭 · Keine Flugdaten vorhanden</div></div>
         <div style="height:8px"></div>
-        <button class="btn-s" onclick="loadSessions()">🔄 &nbsp;SESSIONS NEU LADEN</button>
+        <button class="btn-s" onclick="loadFlightList()">🔄 &nbsp;FLUGDATEN NEU LADEN</button>
       </div>
     </div>
 
@@ -335,13 +386,20 @@
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
+// ─── CONFIG ──────────────────────────────────────────────────────
 const CLIENT_ID = '876959021639-n6r7k3fj27segqhe5a8bl4vrtbic8d11.apps.googleusercontent.com';
-const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
-const PREFIX = 'enginelog_';
+const SCOPES    = 'https://www.googleapis.com/auth/drive.appdata';
+const PREFIX    = 'enginelog_';
+const VFR_PREFIX = 'vfrroute_';
+const LS_PENDING = 'enginelog_pending';
+const LS_CURRENT = 'enginelog_current';
 
-let token = null, user = null, session = [];
+// ─── STATE ───────────────────────────────────────────────────────
+let token = null, user = null;
+let session = [];                    // current events [{id,type,label,iso,lTime,lDate,uTime,uDate}]
+let isOnline = navigator.onLine;
 
-// ── CLOCK ──────────────────────────────────────────────────────
+// ─── CLOCK ───────────────────────────────────────────────────────
 function tick() {
   const n = new Date(), p = x => String(x).padStart(2,'0');
   document.getElementById('ltime').textContent = `${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}`;
@@ -351,14 +409,79 @@ function tick() {
 }
 setInterval(tick,1000); tick();
 
-// ── SECTIONS ──────────────────────────────────────────────────
+// ─── ONLINE / OFFLINE ────────────────────────────────────────────
+window.addEventListener('online',  () => { isOnline = true;  updateConnStatus(); flushPending(); });
+window.addEventListener('offline', () => { isOnline = false; updateConnStatus(); });
+
+function updateConnStatus() {
+  const banner = document.getElementById('offlineBanner');
+  const dot    = document.getElementById('sdot');
+  const stext  = document.getElementById('stext');
+  const pending = getPending();
+
+  if (!isOnline) {
+    banner.classList.add('show');
+    dot.className = 'sdot warn';
+    stext.textContent = '⚠️ OFFLINE · Daten werden lokal zwischengespeichert';
+  } else {
+    banner.classList.remove('show');
+    if (token) {
+      dot.className = 'sdot on';
+      stext.textContent = `Angemeldet als ${user?.email||'–'} · Drive-Sync aktiv`;
+    }
+  }
+
+  // update pending count
+  if (pending.length) {
+    document.getElementById('pendingCount').textContent = `· ${pending.length} Eintrag/Einträge ausstehend`;
+  }
+}
+
+// ─── PENDING QUEUE (localStorage) ────────────────────────────────
+function getPending() {
+  try { return JSON.parse(localStorage.getItem(LS_PENDING) || '[]'); } catch { return []; }
+}
+function setPending(arr) {
+  localStorage.setItem(LS_PENDING, JSON.stringify(arr));
+}
+function addToPending(data, filename) {
+  const q = getPending();
+  q.push({ data, filename, ts: Date.now() });
+  setPending(q);
+  updateConnStatus();
+}
+
+async function flushPending() {
+  if (!token) return;
+  const q = getPending();
+  if (!q.length) return;
+  toast(`⏳ Synchronisiere ${q.length} ausstehende Flugdaten …`);
+  const remaining = [];
+  for (const item of q) {
+    try {
+      await driveUpload(item.filename, JSON.stringify(item.data, null, 2));
+    } catch(e) {
+      remaining.push(item);
+    }
+  }
+  setPending(remaining);
+  if (remaining.length === 0) {
+    toast('✅ Alle ausstehenden Flugdaten synchronisiert');
+    loadFlightList();
+  } else {
+    toast(`⚠️ ${remaining.length} Einträge konnten nicht gespeichert werden`);
+  }
+  updateConnStatus();
+}
+
+// ─── SECTIONS ────────────────────────────────────────────────────
 function tog(id) {
   const b = document.getElementById('b-'+id), c = document.getElementById('c-'+id);
   b.classList.toggle('col');
   c.classList.toggle('open', !b.classList.contains('col'));
 }
 
-// ── GOOGLE AUTH ────────────────────────────────────────────────
+// ─── GOOGLE AUTH ─────────────────────────────────────────────────
 function initGSI() {
   google.accounts.id.initialize({ client_id: CLIENT_ID, callback: handleCred, auto_select: false });
   google.accounts.id.renderButton(document.getElementById('g-btn'), {
@@ -382,31 +505,127 @@ function parseJWT(t) {
 
 function onIn() {
   document.getElementById('login').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
+  document.getElementById('app').style.display   = 'block';
   if (user.picture) { document.getElementById('avatar').src = user.picture; document.getElementById('avatar').style.display = 'block'; }
   document.getElementById('uname').textContent = user.given_name || user.email || '';
   document.getElementById('uname').style.display = 'block';
   document.getElementById('logoutBtn').style.display = 'block';
-  document.getElementById('sdot').className = 'sdot on';
-  document.getElementById('stext').textContent = `Angemeldet als ${user.email || user.name || '–'} · Drive-Sync aktiv`;
-  loadSessions();
+  updateConnStatus();
+  loadFlightList();
+  loadVFRRoutes();
+  flushPending();
+  restoreCurrentFlight();
 }
 
 function signOut() {
   google.accounts.id.disableAutoSelect();
   token = null; user = null; session = [];
   document.getElementById('login').style.display = 'block';
-  document.getElementById('app').style.display = 'none';
+  document.getElementById('app').style.display   = 'none';
   document.getElementById('sdot').className = 'sdot';
   document.getElementById('stext').textContent = 'Nicht angemeldet · Bitte mit Google-Konto anmelden';
-  document.getElementById('avatar').style.display = 'none';
-  document.getElementById('uname').style.display = 'none';
+  document.getElementById('avatar').style.display  = 'none';
+  document.getElementById('uname').style.display   = 'none';
   document.getElementById('logoutBtn').style.display = 'none';
   toast('Abgemeldet');
 }
 
-// ── LOG EVENT ──────────────────────────────────────────────────
+// ─── VFR TOOL ROUTES ─────────────────────────────────────────────
+// The VFR tool stores routes in Drive appDataFolder as vfrroute_*.json
+// Each has: {registration, departure, destination, routing, name, ...}
+async function loadVFRRoutes() {
+  const el = document.getElementById('vfrRoutes');
+  if (!token) { el.innerHTML = '<span class="routes-loading">Anmeldung erforderlich</span>'; return; }
+
+  try {
+    // Search for both vfrroute_ prefix files AND any saved route files from the VFR tool
+    const r = await fetch(
+      `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name+contains+'vfrroute_'&fields=files(id,name,createdTime)&orderBy=createdTime+desc&pageSize=20`,
+      { headers: { Authorization:`Bearer ${token}` } }
+    );
+    const d = await r.json();
+    const files = d.files || [];
+
+    if (!files.length) {
+      el.innerHTML = '<span class="routes-loading">📭 Keine VFR-Routen gefunden · Bitte zuerst im VFR-Tool speichern</span>';
+      return;
+    }
+
+    // Load each file's content
+    const routes = [];
+    for (const f of files.slice(0, 10)) {
+      try {
+        const fr = await fetch(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`,
+          { headers: { Authorization:`Bearer ${token}` } });
+        const rd = await fr.json();
+        routes.push({ file: f, data: rd });
+      } catch(e) { /* skip */ }
+    }
+
+    renderVFRRoutes(routes);
+  } catch(e) {
+    el.innerHTML = '<span class="routes-loading">⚠️ Routen konnten nicht geladen werden</span>';
+  }
+}
+
+function renderVFRRoutes(routes) {
+  const el = document.getElementById('vfrRoutes');
+  if (!routes.length) {
+    el.innerHTML = '<span class="routes-loading">📭 Keine VFR-Routen gefunden</span>';
+    return;
+  }
+
+  el.innerHTML = routes.map((r,i) => {
+    const d = r.data;
+    const reg  = d.registration || d.callsign || d.aircraft || '–';
+    const dep  = d.departure || d.from || d.abflug || '';
+    const dest = d.destination || d.to || d.ziel || '';
+    const name = d.name || d.routeName || '';
+    const route = dep && dest ? `${dep} → ${dest}` : (name || r.file.name.replace('vfrroute_','').replace('.json',''));
+    return `<span class="route-pill" onclick="selectVFRRoute(${i})" id="rpill-${i}" data-idx="${i}">
+      <span class="route-pill-reg">${reg}</span>
+      <span class="route-pill-route">${route}</span>
+    </span>`;
+  }).join('');
+
+  // store for selection
+  window._vfrRoutes = routes;
+}
+
+function selectVFRRoute(idx) {
+  const routes = window._vfrRoutes || [];
+  const r = routes[idx];
+  if (!r) return;
+  const d = r.data;
+
+  // Deselect all
+  document.querySelectorAll('.route-pill').forEach(p => p.classList.remove('selected'));
+  document.getElementById('rpill-'+idx)?.classList.add('selected');
+
+  // Fill fields
+  const reg  = d.registration || d.callsign || d.aircraft || '';
+  const dep  = d.departure || d.from || d.abflug || '';
+  const dest = d.destination || d.to || d.ziel || '';
+  const name = d.name || d.routeName || d.routing || '';
+
+  if (reg)  document.getElementById('iReg').value  = reg.toUpperCase();
+  if (dep)  document.getElementById('iDep').value  = dep.toUpperCase();
+  if (dest) document.getElementById('iDest').value = dest.toUpperCase();
+  if (name || (dep&&dest)) document.getElementById('iNote').value = name || `VFR ${dep}→${dest}`;
+
+  updateExport();
+  toast(`✓ Route geladen: ${dep||reg} → ${dest||name}`);
+  saveCurrentFlight();
+}
+
+// ─── LOG EVENT ───────────────────────────────────────────────────
 function log_event(type, label) {
+  // Check if already logged
+  if (session.find(e => e.type === type)) {
+    toast(`⚠️ ${label} wurde bereits erfasst · Zuerst löschen`);
+    return;
+  }
+
   const n = new Date(), p = x => String(x).padStart(2,'0');
   const e = {
     id: Date.now(), type, label,
@@ -417,10 +636,49 @@ function log_event(type, label) {
     uDate: `${p(n.getUTCDate())}.${p(n.getUTCMonth()+1)}.${n.getUTCFullYear()}`
   };
   session.push(e);
-  renderLog(); updateExport();
+
+  updateButtonStates();
+  renderLog();
+  updateExport();
+  updateProgress();
   document.getElementById('saveBtn').disabled = false;
   toast(`✓ ${label} · ${e.lTime} (${e.uTime} UTC)`);
   if (navigator.vibrate) navigator.vibrate(60);
+  saveCurrentFlight();
+
+  // Auto-save when all 3 are set
+  const types = session.map(x => x.type);
+  if (types.includes('motor_on') && types.includes('start') && types.includes('motor_off')) {
+    document.getElementById('autosaveInfo').textContent = '✅ Alle Timestamps erfasst · Automatisches Speichern …';
+    setTimeout(() => autoSaveAll(), 800);
+  }
+}
+
+function updateButtonStates() {
+  ['motor_on','start','motor_off'].forEach(type => {
+    const btn = document.getElementById('btn-'+type);
+    const sub = document.getElementById('sub-'+type);
+    const arr = document.getElementById('arr-'+type);
+    const ev  = session.find(e => e.type === type);
+    if (ev) {
+      btn.disabled = true;
+      sub.textContent = `✓ ${ev.lTime} · ${ev.uTime}Z`;
+      arr.textContent = '✓';
+    } else {
+      btn.disabled = false;
+      const defaults = { motor_on:'ENGINE START · TIMESTAMP', start:'TAKE-OFF · TIMESTAMP', motor_off:'ENGINE OFF · TIMESTAMP' };
+      sub.textContent = defaults[type];
+      arr.textContent = '›';
+    }
+  });
+}
+
+function updateProgress() {
+  ['motor_on','start','motor_off'].forEach(type => {
+    const step = document.getElementById('prog-'+type);
+    const done = !!session.find(e => e.type === type);
+    step.className = 'prog-step' + (done ? ' done' : '');
+  });
 }
 
 function renderLog() {
@@ -436,32 +694,141 @@ function renderLog() {
         <div class="ltime">${e.lTime} <span style="font-size:11px;color:var(--text2)">(${e.uTime} UTC)</span></div>
         <div class="lutc">${e.lDate} Lokal &nbsp;|&nbsp; ${e.uDate} UTC</div>
       </div>
-      <button class="ldel" onclick="delEvent(${e.id})">✕</button>
+      <button class="ldel" onclick="delEvent(${e.id})" title="Löschen">✕</button>
     </div>`;
   }).join('');
 }
 
 function delEvent(id) {
   session = session.filter(e => e.id !== id);
-  renderLog(); updateExport();
+  updateButtonStates();
+  updateProgress();
+  renderLog();
+  updateExport();
+  saveCurrentFlight();
+  document.getElementById('autosaveInfo').textContent = 'Automatisches Speichern nach allen 3 Timestamps';
   if (!session.length) document.getElementById('saveBtn').disabled = true;
 }
 
-// ── ATOM EXPORT ─────────────────────────────────────────────────
+// ─── AUTO-SAVE LOGIC ─────────────────────────────────────────────
+async function autoSaveAll() {
+  const data = buildFlightData();
+  const filename = buildFilename();
+
+  if (!isOnline || !token) {
+    // Save locally
+    addToPending(data, filename);
+    saveCurrentFlight();
+    document.getElementById('autosaveInfo').textContent = '📴 Offline gespeichert · Sync bei Verbindung';
+    toast('📴 Offline gespeichert · Wird bei Verbindung synchronisiert');
+    document.getElementById('saveBtn').disabled = false;
+    return;
+  }
+
+  try {
+    await driveUpload(filename, JSON.stringify(data, null, 2));
+    document.getElementById('autosaveInfo').textContent = '✅ In Google Drive gespeichert';
+    toast('✅ Automatisch in Google Drive gespeichert');
+    clearCurrentFlight();
+    loadFlightList();
+  } catch(e) {
+    addToPending(data, filename);
+    document.getElementById('autosaveInfo').textContent = '⚠️ Fehler · Lokal gespeichert · Retry bei Verbindung';
+    toast('⚠️ Fehler · Lokal zwischengespeichert');
+  }
+}
+
+async function saveNow() {
+  if (!session.length) return;
+  const data = buildFlightData();
+  const filename = buildFilename();
+
+  if (!isOnline || !token) {
+    addToPending(data, filename);
+    toast('📴 Offline gespeichert · Wird bei Verbindung synchronisiert');
+    return;
+  }
+
+  try {
+    toast('⏳ Speichern …');
+    await driveUpload(filename, JSON.stringify(data, null, 2));
+    toast('✅ Flugdaten in Google Drive gespeichert');
+    clearCurrentFlight();
+    loadFlightList();
+  } catch(e) {
+    addToPending(data, filename);
+    toast('⚠️ Fehler · Lokal zwischengespeichert');
+  }
+}
+
+function buildFlightData() {
+  return {
+    version: 2,
+    savedAt: new Date().toISOString(),
+    registration: document.getElementById('iReg').value.trim(),
+    departure:    document.getElementById('iDep').value.trim(),
+    destination:  document.getElementById('iDest').value.trim(),
+    note:         document.getElementById('iNote').value.trim(),
+    events: session
+  };
+}
+
+function buildFilename() {
+  const n   = new Date(), p = x => String(x).padStart(2,'0');
+  const reg = (document.getElementById('iReg').value.trim() || 'UNKNOWN').replace(/[\s\/\\]/g,'');
+  return `${PREFIX}${n.getFullYear()}${p(n.getMonth()+1)}${p(n.getDate())}_${p(n.getHours())}${p(n.getMinutes())}_${reg}.json`;
+}
+
+// ─── PERSIST CURRENT FLIGHT (localStorage) ───────────────────────
+function saveCurrentFlight() {
+  const d = {
+    session,
+    reg:  document.getElementById('iReg').value,
+    dep:  document.getElementById('iDep').value,
+    dest: document.getElementById('iDest').value,
+    note: document.getElementById('iNote').value,
+  };
+  localStorage.setItem(LS_CURRENT, JSON.stringify(d));
+}
+
+function restoreCurrentFlight() {
+  try {
+    const raw = localStorage.getItem(LS_CURRENT);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.session?.length) {
+      session = d.session;
+      document.getElementById('iReg').value  = d.reg  || '';
+      document.getElementById('iDep').value  = d.dep  || '';
+      document.getElementById('iDest').value = d.dest || '';
+      document.getElementById('iNote').value = d.note || '';
+      renderLog(); updateButtonStates(); updateProgress(); updateExport();
+      document.getElementById('saveBtn').disabled = false;
+      toast('🔄 Aktuelle Flugdaten wiederhergestellt');
+    }
+  } catch(e) { /* ignore */ }
+}
+
+function clearCurrentFlight() {
+  localStorage.removeItem(LS_CURRENT);
+}
+
+// ─── ATOM EXPORT ─────────────────────────────────────────────────
 function updateExport() {
   const sec = document.getElementById('expSec');
   if (!session.length) { sec.style.display='none'; return; }
   sec.style.display = 'block';
   const reg  = document.getElementById('iReg').value  || '–';
-  const icao = document.getElementById('iIcao').value || '–';
+  const dep  = document.getElementById('iDep').value  || '–';
+  const dest = document.getElementById('iDest').value || '–';
   const note = document.getElementById('iNote').value || '–';
   const map  = { motor_on:'Motor An  ', start:'Start     ', motor_off:'Motor Aus ' };
-  let out = `ATOM ENGINE LOG\n${'─'.repeat(34)}\n`;
-  out += `Kennzeichen : ${reg}\nPlatz ICAO  : ${icao}\nNotiz       : ${note}\n${'─'.repeat(34)}\n`;
+  let out = `ATOM ENGINE LOG\n${'─'.repeat(36)}\n`;
+  out += `Kennzeichen : ${reg}\nAbflug      : ${dep}\nZiel        : ${dest}\nNotiz       : ${note}\n${'─'.repeat(36)}\n`;
   session.forEach(e => {
     out += `${(map[e.type]||e.type).padEnd(12)}: ${e.lTime} lokal  (${e.uTime}Z UTC)\n`;
   });
-  out += `${'─'.repeat(34)}\nErstellt    : ${new Date().toLocaleString('de-AT')}`;
+  out += `${'─'.repeat(36)}\nErstellt    : ${new Date().toLocaleString('de-AT')}`;
   document.getElementById('atomBox').textContent = out;
 }
 
@@ -470,43 +837,30 @@ function copyAtom() {
     .then(() => toast('📋 In Zwischenablage kopiert'));
 }
 
-// ── DRIVE ───────────────────────────────────────────────────────
-async function saveSession() {
-  if (!token || !session.length) return;
-  const n   = new Date(), p = x => String(x).padStart(2,'0');
-  const reg = (document.getElementById('iReg').value.trim() || 'UNKNOWN').replace(/\s/g,'');
-  const fn  = `${PREFIX}${n.getFullYear()}${p(n.getMonth()+1)}${p(n.getDate())}_${p(n.getHours())}${p(n.getMinutes())}_${reg}.json`;
-  const data = {
-    version:1, savedAt:n.toISOString(),
-    registration: document.getElementById('iReg').value.trim(),
-    icao: document.getElementById('iIcao').value.trim(),
-    note: document.getElementById('iNote').value.trim(),
-    events: session
-  };
-  try {
-    toast('⏳ Speichern …');
-    const bnd = '---ElBoundary';
-    const body = `--${bnd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n`
-      + JSON.stringify({name:fn, parents:['appDataFolder'], mimeType:'application/json'})
-      + `\r\n--${bnd}\r\nContent-Type: application/json\r\n\r\n`
-      + JSON.stringify(data, null, 2)
-      + `\r\n--${bnd}--`;
-    const r = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-      method:'POST',
-      headers: { Authorization:`Bearer ${token}`, 'Content-Type':`multipart/related; boundary="${bnd}"` },
-      body
-    });
-    if (!r.ok) throw new Error((await r.json().catch(()=>({}))).error?.message || r.statusText);
-    toast('✅ Gespeichert in Google Drive');
-    loadSessions();
-  } catch(e) { toast('❌ Fehler: ' + e.message); }
+// ─── DRIVE UPLOAD ────────────────────────────────────────────────
+async function driveUpload(filename, content) {
+  const bnd = '---ElBnd';
+  const body =
+    `--${bnd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n`
+    + JSON.stringify({ name: filename, parents: ['appDataFolder'], mimeType: 'application/json' })
+    + `\r\n--${bnd}\r\nContent-Type: application/json\r\n\r\n`
+    + content
+    + `\r\n--${bnd}--`;
+  const r = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': `multipart/related; boundary="${bnd}"` },
+    body
+  });
+  if (!r.ok) throw new Error((await r.json().catch(()=>({}))).error?.message || r.statusText);
+  return r.json();
 }
 
-async function loadSessions() {
+// ─── LOAD FLIGHT LIST ────────────────────────────────────────────
+async function loadFlightList() {
   if (!token) return;
   try {
     const r = await fetch(
-      `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name+contains+'${PREFIX}'&fields=files(id,name,createdTime)&orderBy=createdTime+desc&pageSize=30`,
+      `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name+contains+'${PREFIX}'&fields=files(id,name,createdTime)&orderBy=createdTime+desc&pageSize=40`,
       { headers: { Authorization:`Bearer ${token}` } }
     );
     const d = await r.json();
@@ -516,13 +870,13 @@ async function loadSessions() {
 
 function renderSaved(files) {
   const el = document.getElementById('savList');
-  if (!files.length) { el.innerHTML = '<div class="lempty">📭 · Keine Sessions vorhanden</div>'; return; }
+  if (!files.length) { el.innerHTML = '<div class="lempty">📭 · Keine Flugdaten vorhanden</div>'; return; }
   el.innerHTML = files.map(f => {
     const p = f.name.replace(PREFIX,'').replace('.json','').split('_');
     const dr = p[0]||'', tr = p[1]||'', rg = p.slice(2).join('-')||'–';
     const dd = dr.length===8 ? `${dr.slice(6)}.${dr.slice(4,6)}.${dr.slice(0,4)}` : dr;
     const td = tr.length===4 ? `${tr.slice(0,2)}:${tr.slice(2,4)}` : tr;
-    return `<div class="sentry" onclick="loadFile('${f.id}','${f.name}')">
+    return `<div class="sentry" onclick="loadFlightFile('${f.id}','${f.name}')">
       <div class="srow">
         <span class="sreg">${rg}</span>
         <button class="sdel-btn" onclick="event.stopPropagation();delFile('${f.id}','${f.name}')">✕</button>
@@ -532,16 +886,17 @@ function renderSaved(files) {
   }).join('');
 }
 
-async function loadFile(id, name) {
+async function loadFlightFile(id, name) {
   try {
-    toast('⏳ Lade Session …');
+    toast('⏳ Lade Flugdaten …');
     const r = await fetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`, { headers:{Authorization:`Bearer ${token}`} });
     const d = await r.json();
     session = d.events || [];
     document.getElementById('iReg').value  = d.registration || '';
-    document.getElementById('iIcao').value = d.icao || '';
+    document.getElementById('iDep').value  = d.departure || d.icao || '';
+    document.getElementById('iDest').value = d.destination || '';
     document.getElementById('iNote').value = d.note || '';
-    renderLog(); updateExport();
+    renderLog(); updateButtonStates(); updateProgress(); updateExport();
     document.getElementById('saveBtn').disabled = !session.length;
     toast(`✅ Geladen: ${name}`);
     window.scrollTo({top:0,behavior:'smooth'});
@@ -549,33 +904,41 @@ async function loadFile(id, name) {
 }
 
 async function delFile(id, name) {
-  if (!confirm(`Session löschen?\n${name}`)) return;
+  if (!confirm(`Flugdaten löschen?\n${name}`)) return;
   await fetch(`https://www.googleapis.com/drive/v3/files/${id}`, { method:'DELETE', headers:{Authorization:`Bearer ${token}`} });
-  toast('🗑️ Gelöscht'); loadSessions();
+  toast('🗑️ Gelöscht'); loadFlightList();
 }
 
-function clearSession() {
-  if (session.length && !confirm('Aktuelle Session verwerfen?')) return;
+// ─── CLEAR ───────────────────────────────────────────────────────
+function clearFlight() {
+  if (session.length && !confirm('Aktuelle Flugdaten verwerfen?')) return;
   session = [];
-  ['iReg','iIcao','iNote'].forEach(id => document.getElementById(id).value = '');
-  renderLog();
+  ['iReg','iDep','iDest','iNote'].forEach(id => document.getElementById(id).value = '');
+  // deselect route pills
+  document.querySelectorAll('.route-pill').forEach(p => p.classList.remove('selected'));
+  renderLog(); updateButtonStates(); updateProgress();
   document.getElementById('expSec').style.display = 'none';
   document.getElementById('saveBtn').disabled = true;
-  toast('Session zurückgesetzt');
+  document.getElementById('autosaveInfo').textContent = 'Automatisches Speichern nach allen 3 Timestamps';
+  clearCurrentFlight();
+  toast('Flugdaten zurückgesetzt');
 }
 
-// ── TOAST ──────────────────────────────────────────────────────
+// ─── TOAST ───────────────────────────────────────────────────────
 let tt;
 function toast(msg) {
   const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
-  clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2800);
+  clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// ── INIT ──────────────────────────────────────────────────────
+// ─── INIT ────────────────────────────────────────────────────────
 window.onload = () => {
+  updateConnStatus();
   const chk = setInterval(() => { if (window.google?.accounts?.id) { clearInterval(chk); initGSI(); } }, 200);
 };
-['iReg','iIcao','iNote'].forEach(id => document.getElementById(id).addEventListener('input', updateExport));
+['iReg','iDep','iDest','iNote'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => { updateExport(); saveCurrentFlight(); });
+});
 </script>
 </body>
 </html>
