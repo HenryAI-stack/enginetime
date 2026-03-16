@@ -670,6 +670,16 @@ function log_event(type, label) {
     return;
   }
 
+  // Enforce sequence: start requires motor_on, motor_off requires start
+  if (type === 'start' && !session.find(e => e.type === 'motor_on')) {
+    toast('⚠️ Zuerst MOTOR AN erfassen');
+    return;
+  }
+  if (type === 'motor_off' && !session.find(e => e.type === 'start')) {
+    toast('⚠️ Zuerst START erfassen');
+    return;
+  }
+
   const n = new Date(), p = x => String(x).padStart(2,'0');
   const e = {
     id: Date.now(), type, label,
@@ -698,18 +708,48 @@ function log_event(type, label) {
 }
 
 function updateButtonStates() {
-  ['motor_on','start','motor_off'].forEach(type => {
+  const hasMotoOn  = !!session.find(e => e.type === 'motor_on');
+  const hasStart   = !!session.find(e => e.type === 'start');
+  const hasMotoOff = !!session.find(e => e.type === 'motor_off');
+
+  const order = [
+    { type: 'motor_on',  locked: false,              done: hasMotoOn  },
+    { type: 'start',     locked: !hasMotoOn,          done: hasStart   },
+    { type: 'motor_off', locked: !hasStart,           done: hasMotoOff },
+  ];
+
+  const defaults = {
+    motor_on:  'ENGINE START · TIMESTAMP',
+    start:     'TAKE-OFF · TIMESTAMP',
+    motor_off: 'ENGINE OFF · TIMESTAMP'
+  };
+  const waiting = {
+    start:     '⏳ Warten auf MOTOR AN …',
+    motor_off: '⏳ Warten auf START …'
+  };
+
+  order.forEach(({ type, locked, done }) => {
     const btn = document.getElementById('btn-'+type);
     const sub = document.getElementById('sub-'+type);
     const arr = document.getElementById('arr-'+type);
     const ev  = session.find(e => e.type === type);
-    if (ev) {
+
+    if (done) {
       btn.disabled = true;
+      btn.style.opacity = '';
+      btn.style.filter  = '';
       sub.textContent = `✓ ${ev.lTime} · ${ev.uTime}Z`;
       arr.textContent = '✓';
+    } else if (locked) {
+      btn.disabled = true;
+      btn.style.opacity = '0.35';
+      btn.style.filter  = 'grayscale(0.6)';
+      sub.textContent = waiting[type] || defaults[type];
+      arr.textContent = '›';
     } else {
       btn.disabled = false;
-      const defaults = { motor_on:'ENGINE START · TIMESTAMP', start:'TAKE-OFF · TIMESTAMP', motor_off:'ENGINE OFF · TIMESTAMP' };
+      btn.style.opacity = '';
+      btn.style.filter  = '';
       sub.textContent = defaults[type];
       arr.textContent = '›';
     }
