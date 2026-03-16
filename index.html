@@ -641,7 +641,8 @@ function selectVFRRoute(idx) {
   document.getElementById('iNote').value = name || (dep && dest ? `VFR ${cleanIcao(dep)}→${cleanIcao(dest)}` : '');
 
   updateExport();
-  checkMetaComplete();
+  // Short delay so user sees the filled fields before tabs transition
+  setTimeout(() => checkMetaComplete(true), 300);
   toast(`✓ ${cleanReg(reg)} · ${cleanIcao(dep)} → ${cleanIcao(dest)}`);
   saveCurrentFlight();
 }
@@ -708,14 +709,19 @@ function log_event(type, label) {
 }
 
 function updateButtonStates() {
+  const reg  = document.getElementById('iReg').value.trim();
+  const dep  = document.getElementById('iDep').value.trim();
+  const dest = document.getElementById('iDest').value.trim();
+  const note = document.getElementById('iNote').value.trim();
+  const metaOk = !!(reg && dep && dest && note);
+
   const hasMotoOn  = !!session.find(e => e.type === 'motor_on');
   const hasStart   = !!session.find(e => e.type === 'start');
-  const hasMotoOff = !!session.find(e => e.type === 'motor_off');
 
   const order = [
-    { type: 'motor_on',  locked: false,              done: hasMotoOn  },
-    { type: 'start',     locked: !hasMotoOn,          done: hasStart   },
-    { type: 'motor_off', locked: !hasStart,           done: hasMotoOff },
+    { type: 'motor_on',  locked: !metaOk,                    done: !!session.find(e => e.type === 'motor_on') },
+    { type: 'start',     locked: !metaOk || !hasMotoOn,      done: !!session.find(e => e.type === 'start')    },
+    { type: 'motor_off', locked: !metaOk || !hasStart,       done: !!session.find(e => e.type === 'motor_off') },
   ];
 
   const defaults = {
@@ -736,19 +742,20 @@ function updateButtonStates() {
 
     if (done) {
       btn.disabled = true;
-      btn.style.opacity = '';
+      btn.style.opacity = '1';
       btn.style.filter  = '';
       sub.textContent = `✓ ${ev.lTime} · ${ev.uTime}Z`;
       arr.textContent = '✓';
     } else if (locked) {
       btn.disabled = true;
-      btn.style.opacity = '0.35';
-      btn.style.filter  = 'grayscale(0.6)';
-      sub.textContent = waiting[type] || defaults[type];
+      btn.style.opacity = '0.32';
+      btn.style.filter  = 'grayscale(0.7)';
+      // Only show "waiting" text if meta is ok but previous step missing
+      sub.textContent = metaOk ? (waiting[type] || defaults[type]) : defaults[type];
       arr.textContent = '›';
     } else {
       btn.disabled = false;
-      btn.style.opacity = '';
+      btn.style.opacity = '1';
       btn.style.filter  = '';
       sub.textContent = defaults[type];
       arr.textContent = '›';
@@ -890,7 +897,8 @@ function restoreCurrentFlight() {
       document.getElementById('iDep').value  = d.dep  || '';
       document.getElementById('iDest').value = d.dest || '';
       document.getElementById('iNote').value = d.note || '';
-      renderLog(); updateButtonStates(); updateExport(); checkMetaComplete();
+      renderLog(); updateButtonStates(); updateExport();
+      setTimeout(() => checkMetaComplete(true), 300);
       document.getElementById('saveBtn').disabled = false;
       toast('🔄 Aktuelle Flugdaten wiederhergestellt');
     }
@@ -998,7 +1006,8 @@ async function loadFlightFile(id, name) {
     document.getElementById('iDep').value  = d.departure || d.icao || '';
     document.getElementById('iDest').value = d.destination || '';
     document.getElementById('iNote').value = d.note || '';
-    renderLog(); updateButtonStates(); updateExport(); checkMetaComplete();
+    renderLog(); updateButtonStates(); updateExport();
+    setTimeout(() => checkMetaComplete(true), 300);
     document.getElementById('saveBtn').disabled = !session.length;
     toast(`✅ Geladen: ${name}`);
     window.scrollTo({top:0,behavior:'smooth'});
@@ -1017,7 +1026,7 @@ function clearFlight() {
   session = [];
   ['iReg','iDep','iDest','iNote'].forEach(id => document.getElementById(id).value = '');
   document.querySelectorAll('.route-pill').forEach(p => p.classList.remove('selected'));
-  renderLog(); updateButtonStates(); checkMetaComplete();
+  renderLog(); updateButtonStates(); checkMetaComplete(false);
   document.getElementById('expSec').style.display = 'none';
   const sb = document.getElementById('saveBtn');
   sb.style.display = 'block';
@@ -1037,76 +1046,68 @@ function toast(msg) {
 // ─── INIT ────────────────────────────────────────────────────────
 window.onload = () => {
   updateConnStatus();
-  checkMetaComplete(); // set initial button state (greyed out)
+  checkMetaComplete(false); // set initial button state (greyed out)
   const chk = setInterval(() => { if (window.google?.accounts?.id) { clearInterval(chk); initGSI(); } }, 200);
 };
 ['iReg','iDep','iDest','iNote'].forEach(id => {
   document.getElementById(id).addEventListener('input', () => {
     updateExport();
     saveCurrentFlight();
-    checkMetaComplete();
+    checkMetaComplete(false);
   });
 });
 
-function checkMetaComplete() {
+// Fire transition only when focus leaves the entire meta section (not between fields)
+document.getElementById('b-meta').addEventListener('focusout', (e) => {
+  // relatedTarget is where focus is going — if still inside meta section, ignore
+  if (e.relatedTarget && document.getElementById('b-meta').contains(e.relatedTarget)) return;
+  checkMetaComplete(true);
+});
+
+function checkMetaComplete(allowTransition = false) {
   const reg  = document.getElementById('iReg').value.trim();
   const dep  = document.getElementById('iDep').value.trim();
   const dest = document.getElementById('iDest').value.trim();
   const note = document.getElementById('iNote').value.trim();
   const complete = !!(reg && dep && dest && note);
 
-  const bAct = document.getElementById('b-act');
-  const cAct = document.getElementById('c-act');
+  const bAct   = document.getElementById('b-act');
+  const cAct   = document.getElementById('c-act');
   const secAct = bAct.closest('.sec');
 
-  // Lock/unlock the timestamps section header visually
-  secAct.style.opacity = complete ? '1' : '0.45';
+  secAct.style.transition    = 'opacity .5s ease';
+  secAct.style.opacity       = complete ? '1' : '0.45';
   secAct.style.pointerEvents = complete ? '' : 'none';
 
-  if (complete) {
-    secAct.style.opacity = '1';
-    secAct.style.pointerEvents = '';
-    // Open the tab if not already open
-    if (bAct.classList.contains('col')) {
-      // Close all other tabs except 'clk' and 'act'
-      ['meta','log','exp','sav'].forEach(id => {
+  if (complete && allowTransition && bAct.classList.contains('col')) {
+    // Staggered close of other tabs
+    const toClose = ['meta','log','exp','sav'];
+    toClose.forEach((id, i) => {
+      setTimeout(() => {
         const b = document.getElementById('b-'+id);
         const c = document.getElementById('c-'+id);
         if (b && !b.classList.contains('col')) { b.classList.add('col'); c.classList.remove('open'); }
-      });
+      }, i * 80);
+    });
+    // Open timestamps tab after others have started closing
+    setTimeout(() => {
       bAct.classList.remove('col');
       cAct.classList.add('open');
-      // Wait for animation then scroll into view and focus first button
-      setTimeout(() => {
-        secAct.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        const firstBtn = document.getElementById('btn-motor_on');
-        if (firstBtn && !firstBtn.disabled) firstBtn.focus();
-      }, 420);
-    }
-    // Also open log section
-    const bLog = document.getElementById('b-log');
-    const cLog = document.getElementById('c-log');
-    if (bLog.classList.contains('col')) { bLog.classList.remove('col'); cLog.classList.add('open'); }
-  } else {
-    // Collapse and re-lock if fields become incomplete again
-    if (!bAct.classList.contains('col')) {
-      bAct.classList.add('col');
-      cAct.classList.remove('open');
-    }
+    }, toClose.length * 80 + 120);
+    // Scroll + focus after animation settles
+    setTimeout(() => {
+      secAct.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const firstBtn = document.getElementById('btn-motor_on');
+      if (firstBtn && !firstBtn.disabled) firstBtn.focus();
+    }, toClose.length * 80 + 600);
+
+  } else if (!complete && !bAct.classList.contains('col')) {
+    bAct.classList.add('col');
+    cAct.classList.remove('open');
   }
 
-  // Grey/ungrey action buttons
-  ['motor_on','start','motor_off'].forEach(type => {
-    const btn = document.getElementById('btn-'+type);
-    const alreadyDone = !!session.find(e => e.type === type);
-    if (!complete && !alreadyDone) {
-      btn.style.opacity = '0.35';
-      btn.style.filter  = 'grayscale(0.6)';
-    } else if (!alreadyDone) {
-      btn.style.opacity = '';
-      btn.style.filter  = '';
-    }
-  });
+  // Always sync button visual states
+  updateButtonStates();
 }
 </script>
 </body>
