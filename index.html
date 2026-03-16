@@ -594,33 +594,15 @@ function renderVFRRoutes(routes) {
     return;
   }
 
-  // Reuse same recursive finder logic inline
-  function deepVal(obj, keys, depth=0) {
-    if (!obj || typeof obj !== 'object' || depth > 4) return '';
-    for (const k of keys) {
-      if (obj[k]) {
-        if (typeof obj[k] === 'string' && obj[k].trim()) return obj[k].trim();
-        if (typeof obj[k] === 'object') { const v=obj[k].icao||obj[k].value||obj[k].code||''; if(v) return v; }
-      }
-    }
-    for (const key of Object.keys(obj)) {
-      if (typeof obj[key]==='object'&&!Array.isArray(obj[key])) { const f=deepVal(obj[key],keys,depth+1); if(f) return f; }
-    }
-    return '';
-  }
-
   el.innerHTML = routes.map((r, i) => {
     const d = r.data;
-    const reg  = deepVal(d, ['kennzeichen','registration','callsign','aircraft','tail','rego']);
-    const dep  = deepVal(d, ['abflug','departure','from','origin','dep','abflughafen']);
-    const dest = deepVal(d, ['ziel','destination','to','dest','arrival','zielhafen']);
-    const name = deepVal(d, ['name','routeName','title']);
-    const cu = s => s.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
-    const dispReg   = reg  ? reg.toUpperCase()  : '–';
-    const dispRoute = dep && dest ? `${cu(dep)} → ${cu(dest)}` : (name || r.file.name.replace(/\.[^.]+$/,'').replace(/^[a-z0-9]+_/i,''));
+    const reg  = (d.reg || d.kennzeichen || '–').toUpperCase();
+    const apts = (d.waypoints || []).filter(w => w.type === 'apt');
+    const dep  = apts.length > 0 ? apts[0].name.toUpperCase() : (d.dep || '?');
+    const dest = apts.length > 1 ? apts[apts.length-1].name.toUpperCase() : (d.arr || '?');
     return `<span class="route-pill" onclick="selectVFRRoute(${i})" id="rpill-${i}">
-      <span class="route-pill-reg">${dispReg}</span>
-      <span class="route-pill-route">${dispRoute}</span>
+      <span class="route-pill-reg">${reg}</span>
+      <span class="route-pill-route">${dep} → ${dest}</span>
     </span>`;
   }).join('');
 
@@ -633,45 +615,18 @@ function selectVFRRoute(idx) {
   if (!r) return;
   const d = r.data;
 
-  // DEBUG: log full structure so we can see exactly what the VFR tool saves
-  console.log('VFR Route data:', JSON.stringify(d, null, 2));
-
   document.querySelectorAll('.route-pill').forEach(p => p.classList.remove('selected'));
   document.getElementById('rpill-'+idx)?.classList.add('selected');
 
-  // Flatten entire object into key→value map (all levels)
-  function flatten(obj, prefix='', map={}) {
-    if (!obj || typeof obj !== 'object') return map;
-    for (const [k, v] of Object.entries(obj)) {
-      const key = prefix ? `${prefix}.${k}` : k;
-      if (typeof v === 'string' && v.trim()) map[key.toLowerCase()] = v.trim();
-      else if (typeof v === 'number') map[key.toLowerCase()] = String(v);
-      else if (typeof v === 'object' && !Array.isArray(v)) flatten(v, key, map);
-    }
-    return map;
-  }
-  const flat = flatten(d);
-  console.log('Flattened keys:', flat);
-
-  // Find best match for a set of candidate key fragments
-  function pick(fragments) {
-    for (const frag of fragments) {
-      // Exact key match
-      for (const [k, v] of Object.entries(flat)) {
-        if (k === frag || k.endsWith('.'+frag)) return v;
-      }
-      // Partial key match (key contains fragment)
-      for (const [k, v] of Object.entries(flat)) {
-        if (k.includes(frag)) return v;
-      }
-    }
-    return '';
-  }
-
-  const reg  = pick(['kennzeichen','registration','callsign','rego','tail','aircraft','flugzeug','kz']);
-  const dep  = pick(['abflug','departure','depicao','dep_icao','fromicao','from_icao','abflughafen','origin','startort','from','start']);
-  const dest = pick(['ziel','destination','desticao','dest_icao','toicao','to_icao','zielhafen','arrival','ankunft','to','dest']);
-  const name = pick(['name','routename','title','routing','route','bemerkung','notiz','note','description','label']);
+  // Exact field names from VFR tool:
+  // reg = d.reg
+  // dep = name of first waypoint with type "apt"
+  // arr = name of last waypoint with type "apt"
+  const reg  = d.reg || d.kennzeichen || d.registration || '';
+  const apts = (d.waypoints || []).filter(w => w.type === 'apt');
+  const dep  = apts.length > 0 ? apts[0].name : (d.dep || d.abflug || '');
+  const dest = apts.length > 1 ? apts[apts.length-1].name : (d.arr || d.ziel || '');
+  const name = d.name || '';
 
   const cleanIcao = s => s.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
   const cleanReg  = s => s.toUpperCase().replace(/[^A-Z0-9\-]/g,'');
@@ -683,10 +638,7 @@ function selectVFRRoute(idx) {
 
   updateExport();
   checkMetaComplete();
-  const dispReg = reg ? cleanReg(reg)+' · ' : '';
-  const dispDep = dep ? cleanIcao(dep) : '?';
-  const dispDst = dest ? cleanIcao(dest) : '?';
-  toast(`✓ Route: ${dispReg}${dispDep} → ${dispDst}`);
+  toast(`✓ ${cleanReg(reg)} · ${cleanIcao(dep)} → ${cleanIcao(dest)}`);
   saveCurrentFlight();
 }
 
