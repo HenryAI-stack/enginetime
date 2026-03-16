@@ -646,12 +646,12 @@ function log_event(type, label) {
   const reg  = document.getElementById('iReg').value.trim();
   const dep  = document.getElementById('iDep').value.trim();
   const dest = document.getElementById('iDest').value.trim();
-  if (!reg || !dep || !dest) {
-    toast('⚠️ Bitte zuerst Kennzeichen, Abflug und Ziel ausfüllen');
+  const note = document.getElementById('iNote').value.trim();
+  if (!reg || !dep || !dest || !note) {
+    toast('⚠️ Bitte alle Felder in Flugdaten Info ausfüllen');
     const metaSec = document.getElementById('b-meta').closest('.sec');
     metaSec.style.borderColor = 'var(--yellow)';
     setTimeout(() => metaSec.style.borderColor = 'var(--border)', 1500);
-    // Make sure meta is open
     const bm = document.getElementById('b-meta');
     const cm = document.getElementById('c-meta');
     if (bm.classList.contains('col')) { bm.classList.remove('col'); cm.classList.add('open'); }
@@ -1006,19 +1006,44 @@ function checkMetaComplete() {
   const reg  = document.getElementById('iReg').value.trim();
   const dep  = document.getElementById('iDep').value.trim();
   const dest = document.getElementById('iDest').value.trim();
-  const complete = !!(reg && dep && dest);
+  const note = document.getElementById('iNote').value.trim();
+  const complete = !!(reg && dep && dest && note);
 
-  // Open timestamps + log sections when complete
+  const bAct = document.getElementById('b-act');
+  const cAct = document.getElementById('c-act');
+  const secAct = bAct.closest('.sec');
+
+  // Lock/unlock the timestamps section header visually
+  secAct.style.opacity = complete ? '1' : '0.45';
+  secAct.style.pointerEvents = complete ? '' : 'none';
+
   if (complete) {
-    const b = document.getElementById('b-act');
-    const c = document.getElementById('c-act');
-    if (b.classList.contains('col')) { b.classList.remove('col'); c.classList.add('open'); }
-    const bl = document.getElementById('b-log');
-    const cl = document.getElementById('c-log');
-    if (bl.classList.contains('col')) { bl.classList.remove('col'); cl.classList.add('open'); }
+    secAct.style.opacity = '1';
+    secAct.style.pointerEvents = '';
+    // Open the tab if not already open
+    if (bAct.classList.contains('col')) {
+      bAct.classList.remove('col');
+      cAct.classList.add('open');
+      // Wait for animation then scroll into view and focus first button
+      setTimeout(() => {
+        secAct.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const firstBtn = document.getElementById('btn-motor_on');
+        if (firstBtn && !firstBtn.disabled) firstBtn.focus();
+      }, 420);
+    }
+    // Also open log section
+    const bLog = document.getElementById('b-log');
+    const cLog = document.getElementById('c-log');
+    if (bLog.classList.contains('col')) { bLog.classList.remove('col'); cLog.classList.add('open'); }
+  } else {
+    // Collapse and re-lock if fields become incomplete again
+    if (!bAct.classList.contains('col')) {
+      bAct.classList.add('col');
+      cAct.classList.remove('open');
+    }
   }
 
-  // Grey out action buttons when incomplete (but don't disable already-done ones)
+  // Grey/ungrey action buttons
   ['motor_on','start','motor_off'].forEach(type => {
     const btn = document.getElementById('btn-'+type);
     const alreadyDone = !!session.find(e => e.type === type);
