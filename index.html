@@ -13,7 +13,7 @@
 <title>ENGINE LOG // ATOM</title>
 <link rel="icon" type="image/x-icon" href="src/favicon.ico">
 <link rel="apple-touch-icon" href="src/favicon.ico">
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" id="pwa-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1120,13 +1120,65 @@ function checkMetaComplete(allowTransition = false) {
   updateButtonStates();
 }
 
-// ─── SERVICE WORKER REGISTRATION ─────────────────────────────────
+// ─── PWA: INLINE MANIFEST ────────────────────────────────────────
+(function() {
+  const icon192 = 'data:image/png;base64,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';
+  const icon512 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAhhElEQVR4nO3dzXEbSbYG0OyJ3jK0kS/jgXwYI2RNGzE+tAfPl950yAC9hQYtigSIQiF/7r15TsTspkWg8uf7KgskfmtAWi+fPn9f+fO//f3Xbyt/PnCexQuBrA700RQGiMNihImqB/yzFASYx2KDAQR9X4oB9GdRwRME/VqKAZxn8cBBwj4HpQCOsVDgBoFfg0IA11kY8D8Cfw8KAfxgIbAtgU9rCgH7MvHZhsDnCIWAXZjolCb0eYYyQGUmN6UIfEZSCKjEZCY9oc8KygDZmcCkJPSJRBkgI5OWNIT+e9/+/GPpz3/58nXpz49IGSALE5XQdgz91aE+yo5lQRkgMpOTkCoHf9WAf1blgqAIEJFJSRjVQl/Q91GtGCgDRGEislyF4Bf2c1UoBYoAq5mALJE59IV9TJlLgTLACiYdU2ULfmGfW7ZSoAgwk8nGcJlCX+DXlqkQKAOMZoIxTIbgF/h7y1AIFAFGMbHoLnrwC32uiV4GFAF6M6HoJnLwC32eEbkMKAL0YiLxtIjBL/DpKWIhUAR4lgnEadGCX+gzQ7QyoAhwlonDwyIFv9BnpUhlQBHgUSYMhwl+uE4RICMThbuiBL/QJ4MoZUAR4B4ThJsiBL/QJ7KOZQCILB8AQQrDjl0lAAAAAElFTkSuQmCC';
+
+  const manifest = {
+    name: 'ENGINE LOG // ATOM',
+    short_name: 'Engine Log',
+    description: 'Motor-Timestamps für ATOM · Aviation Engine Log',
+    start_url: './',
+    display: 'standalone',
+    orientation: 'portrait',
+    background_color: '#0d0f14',
+    theme_color: '#0d0f14',
+    lang: 'de',
+    icons: [
+      { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+      { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+    ]
+  };
+
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+  document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
+})();
+
+// ─── SERVICE WORKER (inline blob) ────────────────────────────────
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('SW registered:', reg.scope))
-      .catch(err => console.log('SW error:', err));
-  });
+  const swCode = `
+const CACHE = 'enginelog-v2';
+self.addEventListener('install', e => {
+  self.skipWaiting();
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./'])).catch(()=>{}));
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys =>
+    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+  ));
+  self.clients.claim();
+});
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+  if (e.request.url.includes('googleapis.com') || e.request.url.includes('accounts.google.com')) return;
+  e.respondWith(
+    caches.match(e.request).then(cached => {
+      if (cached) return cached;
+      return fetch(e.request).then(res => {
+        if (!res || res.status !== 200 || res.type === 'opaque') return res;
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return res;
+      }).catch(() => caches.match('./'));
+    })
+  );
+});`;
+  const swBlob = new Blob([swCode], { type: 'application/javascript' });
+  const swUrl  = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swUrl, { scope: './' })
+    .then(() => console.log('SW registered'))
+    .catch(e => console.log('SW error:', e));
 }
 </script>
 </body>
