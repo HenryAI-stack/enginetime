@@ -229,7 +229,10 @@
       <div class="sec-body" id="b-meta">
 
         <!-- VFR ROUTES from VFR Tool -->
-        <div class="mlbl" style="margin-bottom:6px">Route aus VFR-Tool laden</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div class="mlbl">Route aus VFR-Tool laden</div>
+          <button onclick="loadVFRRoutes()" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--text2);font-family:var(--mono);font-size:9px;padding:2px 8px;cursor:pointer;letter-spacing:1px" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">🔄 NEU LADEN</button>
+        </div>
         <div id="vfrRoutes" class="routes-loading">⏳ Lade gespeicherte Routen …</div>
         <div style="height:12px"></div>
 
@@ -258,9 +261,9 @@
     <div class="sec">
       <div class="sec-hdr" onclick="tog('act')">
         <span class="sec-title">⚡ &nbsp;TIMESTAMPS ERFASSEN</span>
-        <span class="chev open" id="c-act">▼</span>
+        <span class="chev" id="c-act">▼</span>
       </div>
-      <div class="sec-body" id="b-act" style="padding:0">
+      <div class="sec-body col" id="b-act" style="padding:0">
 
         <!-- AUTO-SAVE STATUS -->
         <div style="padding:12px 14px 4px">
@@ -316,9 +319,9 @@
     <div class="sec">
       <div class="sec-hdr" onclick="tog('log')">
         <span class="sec-title">📋 &nbsp;AKTUELLE FLUGDATEN</span>
-        <span class="chev open" id="c-log">▼</span>
+        <span class="chev" id="c-log">▼</span>
       </div>
-      <div class="sec-body" id="b-log">
+      <div class="sec-body col" id="b-log">
         <div id="logList"><div class="lempty">📭 · Noch keine Timestamps erfasst</div></div>
       </div>
     </div>
@@ -519,55 +522,72 @@ function signOut() {
 }
 
 // ─── VFR TOOL ROUTES ─────────────────────────────────────────────
-// The VFR tool stores routes in Drive appDataFolder.
-// Try multiple known prefixes used by the tool.
 async function loadVFRRoutes() {
   const el = document.getElementById('vfrRoutes');
   if (!token) { el.innerHTML = '<span class="routes-loading">Anmeldung erforderlich</span>'; return; }
 
+  el.innerHTML = '<span class="routes-loading">⏳ Lade VFR-Routen …</span>';
+
   try {
-    // Fetch ALL appDataFolder files and filter client-side for max compatibility
+    // Load ALL appDataFolder files — no filter, to see everything
     const r = await fetch(
-      `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name,createdTime,mimeType)&orderBy=createdTime+desc&pageSize=100`,
+      `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name,createdTime,mimeType,size)&orderBy=createdTime+desc&pageSize=100`,
       { headers: { Authorization:`Bearer ${token}` } }
     );
     const d = await r.json();
     const allFiles = d.files || [];
 
-    // Filter: VFR tool files — could be vfrroute_, vfrplan_, route_, flightplan_, or any json not starting with enginelog_
-    const vfrFiles = allFiles.filter(f => {
-      const n = f.name.toLowerCase();
-      return !n.startsWith('enginelog_') && n.endsWith('.json');
-    });
+    // Separate enginelog files from everything else
+    const vfrCandidates = allFiles.filter(f => !f.name.startsWith('enginelog_'));
 
-    if (!vfrFiles.length) {
-      el.innerHTML = '<span class="routes-loading">📭 Keine VFR-Routen gefunden · Bitte zuerst im VFR-Tool speichern</span>';
+    if (!vfrCandidates.length) {
+      // Show debug: how many total files found
+      el.innerHTML = `<span class="routes-loading">📭 Keine VFR-Routen gefunden (${allFiles.length} Datei${allFiles.length!==1?'en':''} im Drive, alle sind Engine-Logs)<br>Bitte zuerst im VFR-Tool eine Route speichern.</span>`;
       return;
     }
 
-    // Load content of each candidate file
+    // Load and parse each candidate
     const routes = [];
-    for (const f of vfrFiles.slice(0, 15)) {
+    for (const f of vfrCandidates.slice(0, 20)) {
       try {
-        const fr = await fetch(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`,
-          { headers: { Authorization:`Bearer ${token}` } });
-        const rd = await fr.json();
-        // Only include if it looks like a VFR route (has departure/destination/waypoints type data)
-        const isRoute = rd.abflug || rd.ziel || rd.departure || rd.destination ||
-                        rd.from || rd.to || rd.waypoints || rd.route || rd.routing ||
-                        rd.kennzeichen || rd.callsign || rd.registration;
-        if (isRoute) routes.push({ file: f, data: rd });
-      } catch(e) { /* skip malformed */ }
+        const fr = await fetch(
+          `https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`,
+          { headers: { Authorization:`Bearer ${token}` } }
+        );
+        const text = await fr.text();
+        let rd = null;
+        try { rd = JSON.parse(text); } catch { continue; }
+        if (!rd || typeof rd !== 'object') continue;
+
+        // Accept any JSON that has at least one relevant field
+        // VFR-Tool uses: abflug, ziel, kennzeichen, departure, destination, registration,
+        // waypoints, route, flightplan, name, routeName
+        const hasRouteData =
+          rd.abflug || rd.ziel || rd.departure || rd.destination ||
+          rd.kennzeichen || rd.registration || rd.callsign ||
+          rd.waypoints || rd.route || rd.flightplan ||
+          rd.name || rd.routeName || rd.title ||
+          (Array.isArray(rd) && rd.length > 0);
+
+        if (hasRouteData) {
+          // If it's an array (list of routes saved by VFR tool), expand each
+          if (Array.isArray(rd)) {
+            rd.forEach((item, i) => routes.push({ file: { ...f, name: f.name + `[${i}]` }, data: item }));
+          } else {
+            routes.push({ file: f, data: rd });
+          }
+        }
+      } catch(e) { /* skip */ }
     }
 
     if (!routes.length) {
-      el.innerHTML = '<span class="routes-loading">📭 Keine VFR-Routen gefunden · Bitte zuerst im VFR-Tool speichern</span>';
+      el.innerHTML = `<span class="routes-loading">📭 ${vfrCandidates.length} Datei${vfrCandidates.length!==1?'en':''} gefunden, aber keine gültigen VFR-Routen erkannt.<br><small style="color:var(--text2)">${vfrCandidates.map(f=>f.name).join(', ')}</small></span>`;
       return;
     }
 
     renderVFRRoutes(routes);
   } catch(e) {
-    el.innerHTML = '<span class="routes-loading">⚠️ Routen konnten nicht geladen werden</span>';
+    el.innerHTML = `<span class="routes-loading">⚠️ Fehler: ${e.message}</span>`;
     console.error('VFR load error:', e);
   }
 }
@@ -579,19 +599,19 @@ function renderVFRRoutes(routes) {
     return;
   }
 
-  el.innerHTML = routes.map((r,i) => {
+  el.innerHTML = routes.map((r, i) => {
     const d = r.data;
-    // Support both German (VFR-Tool) and English field names
-    const reg  = d.kennzeichen || d.registration || d.callsign || d.aircraft || '–';
-    const dep  = d.abflug || d.departure || d.from || '';
-    const dest = d.ziel  || d.destination || d.to  || '';
-    const name = d.name  || d.routeName   || d.routing || '';
-    const label = dep && dest
+    const reg   = d.kennzeichen || d.registration || d.callsign || d.aircraft || d.tail || '';
+    const dep   = d.abflug  || d.departure || d.from   || d.origin || '';
+    const dest  = d.ziel    || d.destination || d.to   || d.dest   || '';
+    const name  = d.name    || d.routeName  || d.title || d.routing || d.route || '';
+    const dispReg   = reg  ? reg.toUpperCase()  : '–';
+    const dispRoute = dep && dest
       ? `${dep.toUpperCase()} → ${dest.toUpperCase()}`
-      : (name || r.file.name.replace('.json','').replace(/^[a-z]+_/,''));
+      : (name || r.file.name.replace(/\.[^.]+$/, '').replace(/^[a-z0-9]+_/i, ''));
     return `<span class="route-pill" onclick="selectVFRRoute(${i})" id="rpill-${i}">
-      <span class="route-pill-reg">${reg.toUpperCase()}</span>
-      <span class="route-pill-route">${label}</span>
+      <span class="route-pill-reg">${dispReg}</span>
+      <span class="route-pill-route">${dispRoute}</span>
     </span>`;
   }).join('');
 
@@ -619,6 +639,7 @@ function selectVFRRoute(idx) {
   document.getElementById('iNote').value = name || (dep && dest ? `VFR ${dep}→${dest}` : '');
 
   updateExport();
+  checkMetaComplete();
   toast(`✓ Route geladen: ${dep||reg} → ${dest||name}`);
   saveCurrentFlight();
 }
@@ -811,7 +832,7 @@ function restoreCurrentFlight() {
       document.getElementById('iDep').value  = d.dep  || '';
       document.getElementById('iDest').value = d.dest || '';
       document.getElementById('iNote').value = d.note || '';
-      renderLog(); updateButtonStates(); updateExport();
+      renderLog(); updateButtonStates(); updateExport(); checkMetaComplete();
       document.getElementById('saveBtn').disabled = false;
       toast('🔄 Aktuelle Flugdaten wiederhergestellt');
     }
@@ -947,8 +968,34 @@ window.onload = () => {
   const chk = setInterval(() => { if (window.google?.accounts?.id) { clearInterval(chk); initGSI(); } }, 200);
 };
 ['iReg','iDep','iDest','iNote'].forEach(id => {
-  document.getElementById(id).addEventListener('input', () => { updateExport(); saveCurrentFlight(); });
+  document.getElementById(id).addEventListener('input', () => {
+    updateExport();
+    saveCurrentFlight();
+    checkMetaComplete();
+  });
 });
+
+function checkMetaComplete() {
+  const reg  = document.getElementById('iReg').value.trim();
+  const dep  = document.getElementById('iDep').value.trim();
+  const dest = document.getElementById('iDest').value.trim();
+  // Open timestamps section as soon as reg + dep + dest are filled
+  if (reg && dep && dest) {
+    const b = document.getElementById('b-act');
+    const c = document.getElementById('c-act');
+    if (b.classList.contains('col')) {
+      b.classList.remove('col');
+      c.classList.add('open');
+      // Also open log section
+      const bl = document.getElementById('b-log');
+      const cl = document.getElementById('c-log');
+      if (bl.classList.contains('col')) {
+        bl.classList.remove('col');
+        cl.classList.add('open');
+      }
+    }
+  }
+}
 </script>
 </body>
 </html>
