@@ -61,10 +61,14 @@
   .sec{margin:14px 14px 0;background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
   .sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:11px 15px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
   .sec-title{display:flex;align-items:center;gap:8px;font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:2px;color:var(--text2);text-transform:uppercase}
-  .chev{font-size:10px;color:var(--text2);transition:transform .2s}
+  .chev{font-size:10px;color:var(--text2);transition:transform .35s cubic-bezier(.4,0,.2,1)}
   .chev.open{transform:rotate(180deg)}
+  /* Smooth accordion using grid rows */
+  .sec-outer{display:grid;grid-template-rows:1fr;transition:grid-template-rows .38s cubic-bezier(.4,0,.2,1)}
+  .sec-outer.col{grid-template-rows:0fr}
+  .sec-inner{overflow:hidden;min-height:0}
   .sec-body{padding:14px}
-  .sec-body.col{display:none}
+  #b-act-inner{padding:0}
 
   /* CLOCK */
   .clk-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -204,7 +208,7 @@
         <span class="sec-title">🕐 &nbsp;AKTUELLE ZEIT</span>
         <span class="chev open" id="c-clk">▼</span>
       </div>
-      <div class="sec-body" id="b-clk">
+      <div class="sec-outer" id="b-clk"><div class="sec-inner"><div class="sec-body">
         <div class="clk-grid">
           <div class="clk-card">
             <div class="clk-lbl">LOKALZEIT</div>
@@ -217,7 +221,7 @@
             <div class="clk-date" id="udate">--.--.----</div>
           </div>
         </div>
-      </div>
+      </div></div></div>
     </div>
 
     <!-- FLUGDATEN INFO -->
@@ -226,16 +230,13 @@
         <span class="sec-title">✈️ &nbsp;FLUGDATEN INFO</span>
         <span class="chev open" id="c-meta">▼</span>
       </div>
-      <div class="sec-body" id="b-meta">
-
-        <!-- VFR ROUTES from VFR Tool -->
+      <div class="sec-outer" id="b-meta"><div class="sec-inner"><div class="sec-body">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
           <div class="mlbl">Route aus VFR-Tool laden</div>
           <button onclick="loadVFRRoutes()" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--text2);font-family:var(--mono);font-size:9px;padding:2px 8px;cursor:pointer;letter-spacing:1px" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">🔄 NEU LADEN</button>
         </div>
         <div id="vfrRoutes" class="routes-loading">⏳ Lade gespeicherte Routen …</div>
         <div style="height:12px"></div>
-
         <div class="meta-grid">
           <div style="grid-column:1/-1">
             <div class="mlbl">Kennzeichen</div>
@@ -254,7 +255,7 @@
             <input class="minput" id="iNote" placeholder="VFR Routing …" style="text-transform:none">
           </div>
         </div>
-      </div>
+      </div></div></div>
     </div>
 
     <!-- ACTION BUTTONS -->
@@ -263,15 +264,11 @@
         <span class="sec-title">⚡ &nbsp;TIMESTAMPS ERFASSEN</span>
         <span class="chev" id="c-act">▼</span>
       </div>
-      <div class="sec-body col" id="b-act" style="padding:0">
-
-        <!-- AUTO-SAVE STATUS -->
+      <div class="sec-outer col" id="b-act"><div class="sec-inner"><div class="sec-body" style="padding:0">
         <div style="padding:12px 14px 4px">
           <div class="autosave-info" id="autosaveInfo">Automatisches Speichern nach allen 3 Timestamps</div>
         </div>
-
         <div class="abtn-wrap">
-
           <button class="abtn btn-on" id="btn-motor_on" onclick="log_event('motor_on','MOTOR AN')">
             <div class="abtn-inner">
               <div class="abtn-left">
@@ -284,7 +281,6 @@
               <span class="abtn-arr" id="arr-motor_on">›</span>
             </div>
           </button>
-
           <button class="abtn btn-go" id="btn-start" onclick="log_event('start','START')">
             <div class="abtn-inner">
               <div class="abtn-left">
@@ -297,7 +293,6 @@
               <span class="abtn-arr" id="arr-start">›</span>
             </div>
           </button>
-
           <button class="abtn btn-off" id="btn-motor_off" onclick="log_event('motor_off','MOTOR AUS')">
             <div class="abtn-inner">
               <div class="abtn-left">
@@ -310,9 +305,8 @@
               <span class="abtn-arr" id="arr-motor_off">›</span>
             </div>
           </button>
-
         </div>
-      </div>
+      </div></div></div>
     </div>
 
     <!-- CURRENT LOG -->
@@ -321,9 +315,9 @@
         <span class="sec-title">📋 &nbsp;AKTUELLE FLUGDATEN</span>
         <span class="chev" id="c-log">▼</span>
       </div>
-      <div class="sec-body col" id="b-log">
+      <div class="sec-outer col" id="b-log"><div class="sec-inner"><div class="sec-body">
         <div id="logList"><div class="lempty">📭 · Noch keine Timestamps erfasst</div></div>
-      </div>
+      </div></div></div>
     </div>
 
     <!-- ATOM EXPORT -->
@@ -332,11 +326,11 @@
         <span class="sec-title">📊 &nbsp;ATOM EXPORT</span>
         <span class="chev open" id="c-exp">▼</span>
       </div>
-      <div class="sec-body" id="b-exp">
+      <div class="sec-outer" id="b-exp"><div class="sec-inner"><div class="sec-body">
         <div class="ebox" id="atomBox"></div>
         <div style="height:10px"></div>
         <button class="btn-s" onclick="copyAtom()">📋 &nbsp;ATOM-DATEN KOPIEREN</button>
-      </div>
+      </div></div></div>
     </div>
 
     <!-- SAVE / CLEAR -->
@@ -351,11 +345,11 @@
         <span class="sec-title">💾 &nbsp;GESPEICHERTE FLUGDATEN</span>
         <span class="chev" id="c-sav">▼</span>
       </div>
-      <div class="sec-body col" id="b-sav">
+      <div class="sec-outer col" id="b-sav"><div class="sec-inner"><div class="sec-body">
         <div id="savList"><div class="lempty">📭 · Keine Flugdaten vorhanden</div></div>
         <div style="height:8px"></div>
         <button class="btn-s" onclick="loadFlightList()">🔄 &nbsp;FLUGDATEN NEU LADEN</button>
-      </div>
+      </div></div></div>
     </div>
 
     <div style="height:28px"></div>
@@ -465,33 +459,34 @@ function tog(id) {
 let tokenClient = null;
 
 function initGSI() {
-  // Initialize token client ONCE at startup
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
-    scope: SCOPES,
-    callback: tr => { if (tr.access_token) { token = tr.access_token; onIn(); } }
+    scope: 'https://www.googleapis.com/auth/drive.appdata',
+    callback: async (tr) => {
+      if (!tr.access_token) return;
+      token = tr.access_token;
+      // Fetch user info from the token
+      try {
+        const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        user = await r.json();
+      } catch(e) { user = {}; }
+      onIn();
+    }
   });
 
-  google.accounts.id.initialize({
-    client_id: CLIENT_ID,
-    callback: handleCred,
-    auto_select: false,
-    use_fedcm_for_prompt: false
-  });
-  google.accounts.id.renderButton(document.getElementById('g-btn'), {
-    theme:'filled_black', size:'large', text:'signin_with', shape:'rectangular', locale:'de', width:280
-  });
+  document.getElementById('g-btn').innerHTML = `
+    <button class="gbtn" onclick="startLogin()">
+      <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+      Mit Google anmelden
+    </button>`;
 }
 
-function handleCred(resp) {
-  user = parseJWT(resp.credential);
-  // Pass login_hint so the token client can skip the account picker
-  tokenClient.requestAccessToken({ prompt: '', login_hint: user.email || user.sub || '' });
-}
-
-function parseJWT(t) {
-  try { return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))); }
-  catch { return {}; }
+function startLogin() {
+  // prompt:'select_account' forces the account picker every time — remove it
+  // Use empty string so Google decides: silent if already authorised, picker only if needed
+  tokenClient.requestAccessToken({ prompt: '' });
 }
 
 function onIn() {
@@ -599,16 +594,30 @@ function renderVFRRoutes(routes) {
     return;
   }
 
+  // Reuse same recursive finder logic inline
+  function deepVal(obj, keys, depth=0) {
+    if (!obj || typeof obj !== 'object' || depth > 4) return '';
+    for (const k of keys) {
+      if (obj[k]) {
+        if (typeof obj[k] === 'string' && obj[k].trim()) return obj[k].trim();
+        if (typeof obj[k] === 'object') { const v=obj[k].icao||obj[k].value||obj[k].code||''; if(v) return v; }
+      }
+    }
+    for (const key of Object.keys(obj)) {
+      if (typeof obj[key]==='object'&&!Array.isArray(obj[key])) { const f=deepVal(obj[key],keys,depth+1); if(f) return f; }
+    }
+    return '';
+  }
+
   el.innerHTML = routes.map((r, i) => {
     const d = r.data;
-    const reg   = d.kennzeichen || d.registration || d.callsign || d.aircraft || d.tail || '';
-    const dep   = d.abflug  || d.departure || d.from   || d.origin || '';
-    const dest  = d.ziel    || d.destination || d.to   || d.dest   || '';
-    const name  = d.name    || d.routeName  || d.title || d.routing || d.route || '';
+    const reg  = deepVal(d, ['kennzeichen','registration','callsign','aircraft','tail','rego']);
+    const dep  = deepVal(d, ['abflug','departure','from','origin','dep','abflughafen']);
+    const dest = deepVal(d, ['ziel','destination','to','dest','arrival','zielhafen']);
+    const name = deepVal(d, ['name','routeName','title']);
+    const cu = s => s.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
     const dispReg   = reg  ? reg.toUpperCase()  : '–';
-    const dispRoute = dep && dest
-      ? `${dep.toUpperCase()} → ${dest.toUpperCase()}`
-      : (name || r.file.name.replace(/\.[^.]+$/, '').replace(/^[a-z0-9]+_/i, ''));
+    const dispRoute = dep && dest ? `${cu(dep)} → ${cu(dest)}` : (name || r.file.name.replace(/\.[^.]+$/,'').replace(/^[a-z0-9]+_/i,''));
     return `<span class="route-pill" onclick="selectVFRRoute(${i})" id="rpill-${i}">
       <span class="route-pill-reg">${dispReg}</span>
       <span class="route-pill-route">${dispRoute}</span>
@@ -624,39 +633,60 @@ function selectVFRRoute(idx) {
   if (!r) return;
   const d = r.data;
 
+  // DEBUG: log full structure so we can see exactly what the VFR tool saves
+  console.log('VFR Route data:', JSON.stringify(d, null, 2));
+
   document.querySelectorAll('.route-pill').forEach(p => p.classList.remove('selected'));
   document.getElementById('rpill-'+idx)?.classList.add('selected');
 
-  // Deep-search helper: check top-level + common nested objects
-  function find(obj, ...keys) {
-    for (const k of keys) {
-      if (obj[k] && typeof obj[k] === 'string') return obj[k];
+  // Flatten entire object into key→value map (all levels)
+  function flatten(obj, prefix='', map={}) {
+    if (!obj || typeof obj !== 'object') return map;
+    for (const [k, v] of Object.entries(obj)) {
+      const key = prefix ? `${prefix}.${k}` : k;
+      if (typeof v === 'string' && v.trim()) map[key.toLowerCase()] = v.trim();
+      else if (typeof v === 'number') map[key.toLowerCase()] = String(v);
+      else if (typeof v === 'object' && !Array.isArray(v)) flatten(v, key, map);
     }
-    // Also search one level deep in nested objects
-    const nested = ['aircraft','flugzeug','plane','route','flugplan','flightplan','meta','data','info'];
-    for (const nk of nested) {
-      if (obj[nk] && typeof obj[nk] === 'object' && !Array.isArray(obj[nk])) {
-        for (const k of keys) {
-          if (obj[nk][k] && typeof obj[nk][k] === 'string') return obj[nk][k];
-        }
+    return map;
+  }
+  const flat = flatten(d);
+  console.log('Flattened keys:', flat);
+
+  // Find best match for a set of candidate key fragments
+  function pick(fragments) {
+    for (const frag of fragments) {
+      // Exact key match
+      for (const [k, v] of Object.entries(flat)) {
+        if (k === frag || k.endsWith('.'+frag)) return v;
+      }
+      // Partial key match (key contains fragment)
+      for (const [k, v] of Object.entries(flat)) {
+        if (k.includes(frag)) return v;
       }
     }
     return '';
   }
 
-  const reg  = find(d, 'kennzeichen','registration','callsign','aircraft','tail','flugzeug','rego');
-  const dep  = find(d, 'abflug','departure','from','origin','start','dep','abflughafen');
-  const dest = find(d, 'ziel','destination','to','dest','arrival','zielhafen','ankunft');
-  const name = find(d, 'name','routeName','title','routing','route','notiz','note','bemerkung');
+  const reg  = pick(['kennzeichen','registration','callsign','rego','tail','aircraft','flugzeug','kz']);
+  const dep  = pick(['abflug','departure','depicao','dep_icao','fromicao','from_icao','abflughafen','origin','startort','from','start']);
+  const dest = pick(['ziel','destination','desticao','dest_icao','toicao','to_icao','zielhafen','arrival','ankunft','to','dest']);
+  const name = pick(['name','routename','title','routing','route','bemerkung','notiz','note','description','label']);
 
-  if (reg)  document.getElementById('iReg').value  = reg.toUpperCase();
-  if (dep)  document.getElementById('iDep').value  = dep.toUpperCase().slice(0,4);
-  if (dest) document.getElementById('iDest').value = dest.toUpperCase().slice(0,4);
-  document.getElementById('iNote').value = name || (dep && dest ? `VFR ${dep.toUpperCase()}→${dest.toUpperCase()}` : '');
+  const cleanIcao = s => s.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
+  const cleanReg  = s => s.toUpperCase().replace(/[^A-Z0-9\-]/g,'');
+
+  if (reg)  document.getElementById('iReg').value  = cleanReg(reg);
+  if (dep)  document.getElementById('iDep').value  = cleanIcao(dep);
+  if (dest) document.getElementById('iDest').value = cleanIcao(dest);
+  document.getElementById('iNote').value = name || (dep && dest ? `VFR ${cleanIcao(dep)}→${cleanIcao(dest)}` : '');
 
   updateExport();
   checkMetaComplete();
-  toast(`✓ Route geladen: ${reg ? reg.toUpperCase()+' · ' : ''}${dep||'?'} → ${dest||'?'}`);
+  const dispReg = reg ? cleanReg(reg)+' · ' : '';
+  const dispDep = dep ? cleanIcao(dep) : '?';
+  const dispDst = dest ? cleanIcao(dest) : '?';
+  toast(`✓ Route: ${dispReg}${dispDep} → ${dispDst}`);
   saveCurrentFlight();
 }
 
@@ -668,14 +698,13 @@ function log_event(type, label) {
   const dest = document.getElementById('iDest').value.trim();
   if (!reg || !dep || !dest) {
     toast('⚠️ Bitte zuerst Kennzeichen, Abflug und Ziel ausfüllen');
-    // Flash the meta section to draw attention
-    const sec = document.getElementById('b-meta').closest('.sec');
-    sec.style.border = '1px solid var(--yellow)';
-    setTimeout(() => sec.style.border = '1px solid var(--border)', 1500);
+    const metaSec = document.getElementById('b-meta').closest('.sec');
+    metaSec.style.borderColor = 'var(--yellow)';
+    setTimeout(() => metaSec.style.borderColor = 'var(--border)', 1500);
     // Make sure meta is open
-    const b = document.getElementById('b-meta');
-    const c = document.getElementById('c-meta');
-    if (b.classList.contains('col')) { b.classList.remove('col'); c.classList.add('open'); }
+    const bm = document.getElementById('b-meta');
+    const cm = document.getElementById('c-meta');
+    if (bm.classList.contains('col')) { bm.classList.remove('col'); cm.classList.add('open'); }
     return;
   }
 
@@ -927,24 +956,38 @@ async function loadFlightList() {
       { headers: { Authorization:`Bearer ${token}` } }
     );
     const d = await r.json();
-    renderSaved(d.files || []);
+    const files = d.files || [];
+    // Load content of each file to get dep/dest
+    const entries = [];
+    for (const f of files) {
+      try {
+        const fr = await fetch(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`, { headers:{Authorization:`Bearer ${token}`} });
+        const fd = await fr.json();
+        entries.push({ file: f, data: fd });
+      } catch { entries.push({ file: f, data: null }); }
+    }
+    renderSaved(entries);
   } catch(e) { console.error(e); }
 }
 
-function renderSaved(files) {
+function renderSaved(entries) {
   const el = document.getElementById('savList');
-  if (!files.length) { el.innerHTML = '<div class="lempty">📭 · Keine Flugdaten vorhanden</div>'; return; }
-  el.innerHTML = files.map(f => {
-    const p = f.name.replace(PREFIX,'').replace('.json','').split('_');
-    const dr = p[0]||'', tr = p[1]||'', rg = p.slice(2).join('-')||'–';
+  if (!entries.length) { el.innerHTML = '<div class="lempty">📭 · Keine Flugdaten vorhanden</div>'; return; }
+  el.innerHTML = entries.map(({file:f, data:fd}) => {
+    const p  = f.name.replace(PREFIX,'').replace('.json','').split('_');
+    const dr = p[0]||'', tr = p[1]||'';
     const dd = dr.length===8 ? `${dr.slice(6)}.${dr.slice(4,6)}.${dr.slice(0,4)}` : dr;
     const td = tr.length===4 ? `${tr.slice(0,2)}:${tr.slice(2,4)}` : tr;
+    const reg  = fd?.registration || p.slice(2).join('-') || '–';
+    const dep  = fd?.departure  || fd?.abflug  || '';
+    const dest = fd?.destination || fd?.ziel   || '';
+    const route = dep && dest ? ` (${dep.toUpperCase()} → ${dest.toUpperCase()})` : '';
     return `<div class="sentry" onclick="loadFlightFile('${f.id}','${f.name}')">
       <div class="srow">
-        <span class="sreg">${rg}</span>
+        <span class="sreg">${reg.toUpperCase()}${route}</span>
         <button class="sdel-btn" onclick="event.stopPropagation();delFile('${f.id}','${f.name}')">✕</button>
       </div>
-      <div class="sdate">${dd} · ${td} &nbsp;|&nbsp; ${f.name}</div>
+      <div class="sdate">${dd} · ${td}</div>
     </div>`;
   }).join('');
 }
