@@ -1,7 +1,7 @@
 {
-  "name": "ENGINE LOG // ATOM",
-  "short_name": "Engine Log",
-  "description": "Motor-Timestamps für ATOM · Aviation Engine Log",
+  "name": "ENGINETIME // ATOM",
+  "short_name": "Enginetime",
+  "description": "Motor-Timestamps für ATOM · Aviation Enginetime",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
