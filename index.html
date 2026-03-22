@@ -7,10 +7,10 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Engine Log">
-<meta name="application-name" content="Engine Log">
-<meta name="description" content="Motor-Timestamps für ATOM · Aviation Engine Log">
-<title>ENGINE LOG // ATOM</title>
+<meta name="apple-mobile-web-app-title" content="Enginetime">
+<meta name="application-name" content="Enginetime">
+<meta name="description" content="Motor-Timestamps für ATOM · Aviation Enginetime">
+<title>ENGINETIME // ATOM</title>
 <link rel="icon" type="image/x-icon" href="src/favicon.ico">
 <link rel="apple-touch-icon" href="src/icon-192.png">
 <link rel="manifest" href="manifest.json">
@@ -174,7 +174,7 @@
     <div class="hdr-left">
       <span class="hdr-icon">🛩️</span>
       <div>
-        <div class="hdr-title">ENGINE LOG</div>
+        <div class="hdr-title">ENGINETIME</div>
         <div class="hdr-sub">ATOM SYSTEM · TIMESTAMPS</div>
       </div>
     </div>
@@ -202,7 +202,7 @@
     <div class="sp"></div>
     <div class="lcard">
       <div class="licon">✈️</div>
-      <div class="ltitle">ENGINE LOG</div>
+      <div class="ltitle">ENGINETIME</div>
       <div class="lsub">Motor-Timestamps für ATOM<br>Daten werden sicher in Google Drive gespeichert<br>Keine Daten werden weitergegeben</div>
       <div id="g-btn" style="display:flex;justify-content:center"></div>
     </div>
@@ -937,7 +937,7 @@ function updateExport() {
   const dest = document.getElementById('iDest').value || '–';
   const note = document.getElementById('iNote').value || '–';
   const map  = { motor_on:'Motor An  ', start:'Start     ', motor_off:'Motor Aus ' };
-  let out = `ATOM ENGINE LOG\n${'─'.repeat(36)}\n`;
+  let out = `ATOM ENGINETIME\n${'─'.repeat(36)}\n`;
   out += `Kennzeichen : ${reg}\nAbflug      : ${dep}\nZiel        : ${dest}\nNotiz       : ${note}\n${'─'.repeat(36)}\n`;
   session.forEach(e => {
     out += `${(map[e.type]||e.type).padEnd(12)}: ${e.lTime} lokal  (${e.uTime}Z UTC)\n`;
